@@ -4,6 +4,7 @@ import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cumbia_live_company/CallPage.dart';
 import 'package:cumbia_live_company/Models/Shopify/shopify_product_model.dart';
+import 'package:cumbia_live_company/add_new_event/newEvent.dart';
 import 'package:cumbia_live_company/theme/theme.dart';
 import 'package:cumbia_live_company/zego_config.dart';
 import 'package:dio/dio.dart';
@@ -13,7 +14,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:flutter_animated_dialog_updated/flutter_animated_dialog.dart';
+// import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:uuid/uuid.dart';
@@ -23,6 +25,7 @@ import 'package:zego_express_engine/zego_express_engine.dart';
 import 'Models/Constants.dart';
 import 'Models/Structs.dart';
 import 'package:file_picker/file_picker.dart';
+import 'add_new_event/EventsPageOld.dart';
 import 'common/color_constants.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -30,9 +33,10 @@ class HomeScreen extends StatefulWidget {
 
   @override
   _State createState() => _State();
+
 }
 
-class _State extends State<HomeScreen> {
+class _State extends State<HomeScreen>{
 
   bool homeLoading=false;
   bool step3loading=false;
@@ -425,8 +429,7 @@ class _State extends State<HomeScreen> {
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  validatePassToStream(
-                                      screenSizeHeight, screenSizeWidth);
+                                  validatePassToStream(screenSizeHeight, screenSizeWidth, context);
                                 },
                                 behavior: HitTestBehavior.opaque,
                                 child: Container(
@@ -1048,196 +1051,203 @@ class _State extends State<HomeScreen> {
                       shrinkWrap: true,
                       physics: ScrollPhysics(),
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                validatePassToStream(
-                                    screenSizeHeight, screenSizeWidth);
-                              },
-                              behavior: HitTestBehavior.opaque,
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: screenSizeHeight * 0.025,
-                                    bottom: screenSizeHeight * 0.025,
-                                    left: screenSizeWidth * 0.02,
-                                    right: screenSizeWidth * 0.02),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(screenSizeHeight * 0.02)),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.play_circle_filled_outlined,
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      size: screenSizeHeight * 0.06,
-                                    ),
-                                    Container(
-                                      width: screenSizeWidth * 0.01,
-                                    ),
-                                    Text(
-                                      'Iniciar un\nLiveStream',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                if(allProducts.shopProducts==[]||allProducts.wooProducts==[]){
-                                  print("** wk click subir video 0");
-                                  dialogToConnectWeb(screenSizeHeight, screenSizeWidth);
-                                }else{
-                                  print("** wk click subir video 1");
-                                  dialogToOpenVideoUploadSection(screenSizeHeight, screenSizeWidth);
-                                }
-                              },
-                              behavior: HitTestBehavior.opaque,
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: screenSizeHeight * 0.025,
-                                    bottom: screenSizeHeight * 0.025,
-                                    left: screenSizeWidth * 0.02,
-                                    right: screenSizeWidth * 0.02
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(screenSizeHeight * 0.02)),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.upload_file,
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      size: screenSizeHeight * 0.06,
-                                    ),
-                                    Container(
-                                      width: screenSizeWidth * 0.01,
-                                    ),
-                                    Text(
-                                      'Subir \t\nvideo',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  validatePassToStream(screenSizeHeight, screenSizeWidth, context);
+                                  print("you clicked me");
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 20),
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.02,
+                                      right: screenSizeWidth * 0.02),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.play_circle_filled_outlined,
+                                        color: Theme.of(context)
+                                            .secondaryHeaderColor,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.01,
+                                      ),
+                                      Text(
+                                        'Iniciar un\nLiveStream',
+                                        style: TextStyle(
+                                            color: Theme.of(context).focusColor,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: secondaryTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                dialogMenu(screenSizeHeight, screenSizeWidth);
-                              },
-                              behavior: HitTestBehavior.opaque,
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: screenSizeHeight * 0.025,
-                                    bottom: screenSizeHeight * 0.025,
-                                    left: screenSizeWidth * 0.02,
-                                    right: screenSizeWidth * 0.02),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(screenSizeHeight * 0.02)),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.manage_accounts_outlined,
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      size: screenSizeHeight * 0.06,
-                                    ),
-                                    Container(
-                                      width: screenSizeWidth * 0.01,
-                                    ),
-                                    Text(
-                                      'Configurar\nmi cuenta',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                dialogPricing(
-                                    screenSizeHeight, screenSizeWidth);
-                              },
-                              behavior: HitTestBehavior.opaque,
-                              child: Container(
-                                padding: EdgeInsets.only(
-                                    top: screenSizeHeight * 0.025,
-                                    bottom: screenSizeHeight * 0.025,
-                                    left: screenSizeWidth * 0.02,
-                                    right: screenSizeWidth * 0.02),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.all(
-                                      Radius.circular(screenSizeHeight * 0.02)),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.credit_card_outlined,
-                                      color: Theme.of(context)
-                                          .secondaryHeaderColor,
-                                      size: screenSizeHeight * 0.06,
-                                    ),
-                                    Container(
-                                      width: screenSizeWidth * 0.01,
-                                    ),
-                                    Text(
-                                      'Mi\nsuscripción',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.left,
-                                    ),
-                                  ],
+                              GestureDetector(
+                                onTap: () {
+                                  if(allProducts.shopProducts==[]||allProducts.wooProducts==[]){
+                                    print("** wk click subir video 0");
+                                    dialogToConnectWeb(screenSizeHeight, screenSizeWidth);
+                                  }else{
+                                    print("** wk click subir video 1");
+                                    dialogToOpenVideoUploadSection(screenSizeHeight, screenSizeWidth);
+                                  }
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 20),
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.02,
+                                      right: screenSizeWidth * 0.02
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.upload_file,
+                                        color: Theme.of(context)
+                                            .secondaryHeaderColor,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.01,
+                                      ),
+                                      Text(
+                                        'Subir \t\nvideo',
+                                        style: TextStyle(
+                                            color: Theme.of(context).focusColor,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: secondaryTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              GestureDetector(
+                                onTap: () {
+                                  dialogMenu(screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 20),
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.02,
+                                      right: screenSizeWidth * 0.02),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.manage_accounts_outlined,
+                                        color: Theme.of(context)
+                                            .secondaryHeaderColor,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.01,
+                                      ),
+                                      Text(
+                                        'Configurar\nmi cuenta',
+                                        style: TextStyle(
+                                            color: Theme.of(context).focusColor,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: secondaryTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  dialogPricing(
+                                      screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  margin: EdgeInsets.only(right: 20),
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.02,
+                                      right: screenSizeWidth * 0.02),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.credit_card_outlined,
+                                        color: Theme.of(context)
+                                            .secondaryHeaderColor,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.01,
+                                      ),
+                                      Text(
+                                        'Mi\nsuscripción',
+                                        style: TextStyle(
+                                            color: Theme.of(context).focusColor,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: secondaryTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                         Container(
                           height: screenSizeHeight * 0.05,
@@ -4283,13 +4293,33 @@ class _State extends State<HomeScreen> {
     }
   }
 
-  validatePassToStream(screenSizeHeight, screenSizeWidth) async {
+  validatePassToStream(screenSizeHeight, screenSizeWidth, BuildContext context) async {
     productsSelected.clear();
-
+    print(":companyInfo.webSite--- ${companyInfo.webSite} storePlatform- ${companyInfo.storePlatform}");
     if (companyInfo.webSite == '' || companyInfo.storePlatform == '') {
       dialogToStart(screenSizeHeight, screenSizeWidth);
     } else {
-      dialogToStartProducts(screenSizeHeight, screenSizeWidth);
+      // dialogToStartProducts(screenSizeHeight, screenSizeWidth, context);
+      Navigator.of(context).push(
+        PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => NewEventScreen(),
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return child;
+          },
+        ),
+      );
+      // Navigator.of(context).push(
+      //   PageRouteBuilder(
+      //     pageBuilder: (context, animation, secondaryAnimation) => EventsPage(),
+      //     transitionDuration: Duration.zero,
+      //     reverseTransitionDuration: Duration.zero,
+      //     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      //       return child;
+      //     },
+      //   ),
+      // );
     }
   }
 
@@ -4393,14 +4423,15 @@ class _State extends State<HomeScreen> {
         barrierDismissible: true,
         alignment: Alignment.center,
         builder: (BuildContext context) {
-          return CustomDialogWidget(
+          return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.03))),
             /*title: Text('Crear nueva cuenta', style: TextStyle(color: Theme.of(context).focusColor, fontStyle: FontStyle.normal, fontFamily: 'Gotham', decoration: TextDecoration.none,
                 fontSize: secondaryTextWeb, fontWeight: FontWeight.w700), textAlign: TextAlign.center,),*/
             backgroundColor: Colors.white,
-            content: Container(
+            child: Container(
+              padding: EdgeInsets.all(screenSizeHeight * 0.03),
               decoration: BoxDecoration(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.02)),
@@ -4498,13 +4529,14 @@ class _State extends State<HomeScreen> {
   }
 
   // dialogo de productos previos al stream
-  dialogToStartProducts(screenSizeHeight, screenSizeWidth) {
-
+  dialogToStartProducts(screenSizeHeight, screenSizeWidth, BuildContext context) {
     var products = [];
     if (allProducts.ecommercePlatform == 'WooCommerce') {
       products = allProducts.wooProducts??[];
+      print("allProducts---WooCommerce- $products");
     } else if (allProducts.ecommercePlatform == 'Shopify') {
       products = allProducts.shopProducts??[];
+      print("allProducts---Shopify- $products");
     }
     if (screenSizeHeight >= screenSizeWidth) {
       showModalBottomSheet(context: context,backgroundColor: context.background,builder: (context) => StatefulBuilder(
@@ -4671,141 +4703,90 @@ class _State extends State<HomeScreen> {
         alignment: Alignment.center,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, modalState) {
-            return CustomDialogWidget(
+            return Dialog(
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(screenSizeHeight * 0.02))),
+                borderRadius: BorderRadius.circular(screenSizeHeight * 0.02),
+              ),
               backgroundColor: Colors.white,
-              content: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(
-                      Radius.circular(screenSizeHeight * 0.02)),
-                ),
+              child: Container(
                 width: screenSizeWidth * 0.7,
-                child: ListView(
-                  padding: EdgeInsets.only(
-                    top: 0,
-                  ),
-                  shrinkWrap: true,
-                  physics: ScrollPhysics(),
+                padding: EdgeInsets.all(screenSizeHeight * 0.03),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(screenSizeHeight * 0.02),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       'Selecciona los productos que aparecerán en el Stream',
                       style: TextStyle(
-                          color: Theme.of(context).focusColor,
-                          fontStyle: FontStyle.normal,
-                          fontFamily: 'Gotham',
-                          decoration: TextDecoration.none,
-                          fontSize: primaryTextWeb,
-                          fontWeight: FontWeight.w400),
+                        color: Theme.of(context).focusColor,
+                        fontFamily: 'Gotham',
+                        fontSize: primaryTextWeb,
+                        fontWeight: FontWeight.w400,
+                        decoration: TextDecoration.none,
+                      ),
                       textAlign: TextAlign.left,
                     ),
-                    Container(
-                      height: screenSizeHeight * 0.045,
-                    ),
-                    Visibility(
-                      visible: products.length == 0 ? false : true,
-                      child: GridView.builder(
-                        padding: EdgeInsets.only(top: 0),
-                        physics: ScrollPhysics(),
-                        shrinkWrap: true,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          childAspectRatio: 0.7,
-                          crossAxisSpacing: screenSizeHeight * 0.075,
-                          mainAxisSpacing: screenSizeHeight * 0.06,
-                          crossAxisCount: 4,
-                        ),
-                        itemCount: products.length == 0 ? 1 : products.length,
-                        itemBuilder: (context, int index) => productShowWidget(
+                    SizedBox(height: screenSizeHeight * 0.03),
+
+                    // Product Grid or Loader
+                    if (products.isNotEmpty)
+                      Flexible(
+                        child: GridView.builder(
+                          shrinkWrap: true,
+                          physics: AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.zero,
+                          itemCount: products.length,
+                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            crossAxisSpacing: screenSizeHeight * 0.04,
+                            mainAxisSpacing: screenSizeHeight * 0.03,
+                            childAspectRatio: 0.7,
+                          ),
+                          itemBuilder: (context, index) => productShowWidget(
                             index,
                             screenSizeWidth,
                             screenSizeHeight,
-                            modalState),
+                            modalState,
+                          ),
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: EdgeInsets.symmetric(vertical: screenSizeHeight * 0.04),
+                        child: CupertinoActivityIndicator(),
                       ),
-                    ),
-                    Visibility(
-                        visible: products.length == 0 ? true : false,
-                        child: CupertinoActivityIndicator()),
-                    Container(
-                      height: screenSizeHeight * 0.03,
-                    ),
+
+                    SizedBox(height: screenSizeHeight * 0.03),
+
+                    // Action Buttons
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        GestureDetector(
+                        _buildDialogButton(
+                          context: context,
+                          text: 'Cancelar',
+                          width: screenSizeWidth * 0.2,
+                          bgColor: Colors.white,
+                          textColor: Theme.of(context).primaryColor,
+                          borderColor: Theme.of(context).primaryColor,
+                          onTap: () => Navigator.pop(context),
+                        ),
+                        SizedBox(width: screenSizeWidth * 0.045),
+                        _buildDialogButton(
+                          context: context,
+                          text: '¡Iniciar Stream!',
+                          width: screenSizeWidth * 0.2,
+                          bgColor: Theme.of(context).secondaryHeaderColor,
+                          textColor: context.background,
                           onTap: () {
                             Navigator.pop(context);
+                            saveNewStreamData();
                           },
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: screenSizeWidth * 0.2,
-                            padding: EdgeInsets.only(
-                                top: screenSizeHeight * 0.015,
-                                bottom: screenSizeHeight * 0.015),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                    color: Theme.of(context).primaryColor),
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(screenSizeHeight * 0.01))),
-                            child: Text(
-                              'Cancelar',
-                              style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontStyle: FontStyle.normal,
-                                  fontFamily: 'Gotham',
-                                  decoration: TextDecoration.none,
-                                  fontSize: contentTextWeb,
-                                  fontWeight: FontWeight.w700),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: screenSizeWidth * 0.045,
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Navigator.pop(context);
-                            //var roomID = Uuid().v4();
-                            //var roomID = '002';
-                            // if (userInfo.plan?.status == 'Activo') {
-                              saveNewStreamData();
-                            // } else {
-                            //   dialogMessage(
-                            //       'assets/img/error.png',
-                            //       'Lo sentimos',
-                            //       'No puede generar un stream si no cuenta con una suscripción activa');
-                            // }
-                          },
-                          behavior: HitTestBehavior.opaque,
-                          child: Container(
-                            alignment: Alignment.center,
-                            width: screenSizeWidth * 0.2,
-                            padding: EdgeInsets.only(
-                                top: screenSizeHeight * 0.015,
-                                bottom: screenSizeHeight * 0.015),
-                            decoration: BoxDecoration(
-                                color: Theme.of(context).secondaryHeaderColor,
-                                borderRadius: BorderRadius.all(
-                                    Radius.circular(screenSizeHeight * 0.01))),
-                            child: Text(
-                              '¡Iniciar Stream!',
-                              style: TextStyle(
-                                  color: context.background,
-                                  fontStyle: FontStyle.normal,
-                                  fontFamily: 'Gotham',
-                                  decoration: TextDecoration.none,
-                                  fontSize: contentTextWeb,
-                                  fontWeight: FontWeight.w700),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
@@ -4817,6 +4798,41 @@ class _State extends State<HomeScreen> {
         duration: Duration(milliseconds: 200),
       );
     }
+  }
+
+  Widget _buildDialogButton({
+    required BuildContext context,
+    required String text,
+    required double width,
+    required Color bgColor,
+    required Color textColor,
+    Color? borderColor,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        alignment: Alignment.center,
+        width: width,
+        padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.015),
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: borderColor != null ? Border.all(color: borderColor) : null,
+          borderRadius: BorderRadius.circular(MediaQuery.of(context).size.height * 0.01),
+        ),
+        child: Text(
+          text,
+          style: TextStyle(
+            color: textColor,
+            fontFamily: 'Gotham',
+            fontSize: contentTextWeb,
+            fontWeight: FontWeight.w700,
+            decoration: TextDecoration.none,
+          ),
+        ),
+      ),
+    );
   }
 
   saveNewStreamData() async {
@@ -4845,7 +4861,7 @@ class _State extends State<HomeScreen> {
     var refCompany = _db.collection('streams').doc(streamID);
     // await _db.collection('streams').doc(widget.stream?.streamID).update({'status': status});
     // final copyUrl = html.window.location.href + "" + streamId;
-    
+
 
 
     refCompany
@@ -4997,12 +5013,13 @@ class _State extends State<HomeScreen> {
         alignment: Alignment.center,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, modalState) {
-            return CustomDialogWidget(
+            return Dialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                       Radius.circular(screenSizeHeight * 0.02))),
               backgroundColor: Colors.white,
-              content: Container(
+              child: Container(
+                padding: EdgeInsets.all(screenSizeHeight * 0.03),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(
                       Radius.circular(screenSizeHeight * 0.02)),
@@ -5138,12 +5155,13 @@ class _State extends State<HomeScreen> {
       alignment: Alignment.center,
       builder: (BuildContext context) {
         return StatefulBuilder(builder: (context, modalState) {
-          return CustomDialogWidget(
+          return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(
                     Radius.circular(screenSizeHeight * 0.02))),
             backgroundColor: Colors.white,
-            content: Container(
+            child: Container(
+              padding: EdgeInsets.all(screenSizeHeight * 0.03),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(
                     Radius.circular(screenSizeHeight * 0.02)),
@@ -5686,6 +5704,7 @@ class _State extends State<HomeScreen> {
                         topLeft:
                         Radius.circular(screenSizeHeight * 0.02)),
                     child: Container(
+                      height: screenSizeHeight * 0.20,
                       decoration: BoxDecoration(
                         image: products[index].images == ''?DecorationImage(image:AssetImage('assets/img/photo_1.png'), fit: BoxFit.cover):
                         DecorationImage(image:NetworkImage(products[index].images??""), fit: BoxFit.cover),
@@ -5714,6 +5733,8 @@ class _State extends State<HomeScreen> {
                   decoration: TextDecoration.none,
                   fontSize: contentTextWeb,
                   fontWeight: FontWeight.w400),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
             ),
             Text(
@@ -6585,313 +6606,336 @@ class _State extends State<HomeScreen> {
         barrierDismissible: true,
         alignment: Alignment.center,
         builder: (BuildContext context) {
-          return CustomDialogWidget(
+          return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.03))),
-            title: Text(
-              'Configurar mi cuenta',
-              style: TextStyle(
-                  color: Theme.of(context).focusColor,
-                  fontStyle: FontStyle.normal,
-                  fontFamily: 'Gotham',
-                  decoration: TextDecoration.none,
-                  fontSize: secondaryTextWeb,
-                  fontWeight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
+            // title: Text(
+            //   'Configurar mi cuenta',
+            //   style: TextStyle(
+            //       color: Theme.of(context).focusColor,
+            //       fontStyle: FontStyle.normal,
+            //       fontFamily: 'Gotham',
+            //       decoration: TextDecoration.none,
+            //       fontSize: secondaryTextWeb,
+            //       fontWeight: FontWeight.w700),
+            //   textAlign: TextAlign.center,
+            // ),
             backgroundColor: Colors.white,
-            content: Container(
+            child: Container(
+              padding: EdgeInsets.all(screenSizeHeight * 0.03),
               decoration: BoxDecoration(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.02)),
               ),
               width: screenSizeWidth * 0.65,
-              child: ListView(
-                padding: EdgeInsets.only(
-                  top: 0,
-                  left: screenSizeWidth * 0.015,
-                  right: screenSizeWidth * 0.015,
-                  bottom: screenSizeHeight * 0.03,
-                ),
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          dialogUserInfoValues(
-                              screenSizeHeight, screenSizeWidth);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              top: screenSizeHeight * 0.025,
-                              bottom: screenSizeHeight * 0.025,
-                              left: screenSizeWidth * 0.03,
-                              right: screenSizeWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).focusColor,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(screenSizeHeight * 0.02)),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.account_circle_outlined,
-                                color: Colors.white,
-                                size: screenSizeHeight * 0.06,
-                              ),
-                              Container(
-                                width: screenSizeWidth * 0.015,
-                              ),
-                              Text(
-                                'Información\nde usuario',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal,
-                                    fontFamily: 'Gotham',
-                                    decoration: TextDecoration.none,
-                                    fontSize: contentTextWeb,
-                                    fontWeight: FontWeight.w400),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          dialogCompanyInfoValues(
-                              screenSizeHeight, screenSizeWidth);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              top: screenSizeHeight * 0.025,
-                              bottom: screenSizeHeight * 0.025,
-                              left: screenSizeWidth * 0.03,
-                              right: screenSizeWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).focusColor,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(screenSizeHeight * 0.02)),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.business_outlined,
-                                color: Colors.white,
-                                size: screenSizeHeight * 0.06,
-                              ),
-                              Container(
-                                width: screenSizeWidth * 0.015,
-                              ),
-                              Text(
-                                'Información\nde empresa',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal,
-                                    fontFamily: 'Gotham',
-                                    decoration: TextDecoration.none,
-                                    fontSize: contentTextWeb,
-                                    fontWeight: FontWeight.w400),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          dialogContactInfoValues(
-                              screenSizeHeight, screenSizeWidth);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              top: screenSizeHeight * 0.025,
-                              bottom: screenSizeHeight * 0.025,
-                              left: screenSizeWidth * 0.03,
-                              right: screenSizeWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).focusColor,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(screenSizeHeight * 0.02)),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.contact_page_outlined,
-                                color: Colors.white,
-                                size: screenSizeHeight * 0.06,
-                              ),
-                              Container(
-                                width: screenSizeWidth * 0.015,
-                              ),
-                              Text(
-                                'Información\nde contacto',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal,
-                                    fontFamily: 'Gotham',
-                                    decoration: TextDecoration.none,
-                                    fontSize: contentTextWeb,
-                                    fontWeight: FontWeight.w400),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                  Container(height: screenSizeHeight * 0.06,),
+                  Text(
+                    'Configurar mi cuenta',
+                    style: TextStyle(
+                        color: Theme.of(context).focusColor,
+                        fontStyle: FontStyle.normal,
+                        fontFamily: 'Gotham',
+                        decoration: TextDecoration.none,
+                        fontSize: secondaryTextWeb,
+                        fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
                   ),
-                  Container(
-                    height: screenSizeHeight * 0.03,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          dialogToConnectWeb(screenSizeHeight, screenSizeWidth);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              top: screenSizeHeight * 0.025,
-                              bottom: screenSizeHeight * 0.025,
-                              left: screenSizeWidth * 0.03,
-                              right: screenSizeWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).focusColor,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(screenSizeHeight * 0.02)),
-                          ),
-                          child: Row(
+                  Container(height: screenSizeHeight * 0.06,),
+                  Expanded(
+                    child: Center(
+                      child: ListView(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                          left: screenSizeWidth * 0.015,
+                          right: screenSizeWidth * 0.015,
+                          bottom: screenSizeHeight * 0.03,
+                        ),
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        children: [
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                Icons.desktop_windows_outlined,
-                                color: Colors.white,
-                                size: screenSizeHeight * 0.06,
+                              GestureDetector(
+                                onTap: () {
+                                  dialogUserInfoValues(
+                                      screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.03,
+                                      right: screenSizeWidth * 0.03),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).focusColor,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.account_circle_outlined,
+                                        color: Colors.white,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.015,
+                                      ),
+                                      Text(
+                                        'Información\nde usuario',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: contentTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              Container(
-                                width: screenSizeWidth * 0.015,
+                              GestureDetector(
+                                onTap: () {
+                                  dialogCompanyInfoValues(
+                                      screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.03,
+                                      right: screenSizeWidth * 0.03),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).focusColor,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.business_outlined,
+                                        color: Colors.white,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.015,
+                                      ),
+                                      Text(
+                                        'Información\nde empresa',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: contentTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              Text(
-                                'Vinculación\nEcommerce',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal,
-                                    fontFamily: 'Gotham',
-                                    decoration: TextDecoration.none,
-                                    fontSize: contentTextWeb,
-                                    fontWeight: FontWeight.w400),
-                                textAlign: TextAlign.left,
+                              GestureDetector(
+                                onTap: () {
+                                  dialogContactInfoValues(
+                                      screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.03,
+                                      right: screenSizeWidth * 0.03),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).focusColor,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.contact_page_outlined,
+                                        color: Colors.white,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.015,
+                                      ),
+                                      Text(
+                                        'Información\nde contacto',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: contentTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          //todo suscripción cumbia
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              top: screenSizeHeight * 0.025,
-                              bottom: screenSizeHeight * 0.025,
-                              left: screenSizeWidth * 0.03,
-                              right: screenSizeWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).focusColor,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(screenSizeHeight * 0.02)),
+                          Container(
+                            height: screenSizeHeight * 0.03,
                           ),
-                          child: Row(
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Icon(
-                                Icons.payment_outlined,
-                                color: Colors.white,
-                                size: screenSizeHeight * 0.06,
+                              GestureDetector(
+                                onTap: () {
+                                  dialogToConnectWeb(screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.03,
+                                      right: screenSizeWidth * 0.03),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).focusColor,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.desktop_windows_outlined,
+                                        color: Colors.white,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.015,
+                                      ),
+                                      Text(
+                                        'Vinculación\nEcommerce',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: contentTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              Container(
-                                width: screenSizeWidth * 0.015,
+                              GestureDetector(
+                                onTap: () {
+                                  //todo suscripción cumbia
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.03,
+                                      right: screenSizeWidth * 0.03),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).focusColor,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.payment_outlined,
+                                        color: Colors.white,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.015,
+                                      ),
+                                      Text(
+                                        'Suscripción\nCumbiaLive',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: contentTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              Text(
-                                'Suscripción\nCumbiaLive',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal,
-                                    fontFamily: 'Gotham',
-                                    decoration: TextDecoration.none,
-                                    fontSize: contentTextWeb,
-                                    fontWeight: FontWeight.w400),
-                                textAlign: TextAlign.left,
+                              GestureDetector(
+                                onTap: () {
+                                  dialogToPrivacy(screenSizeHeight, screenSizeWidth);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                  padding: EdgeInsets.only(
+                                      top: screenSizeHeight * 0.025,
+                                      bottom: screenSizeHeight * 0.025,
+                                      left: screenSizeWidth * 0.03,
+                                      right: screenSizeWidth * 0.03),
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).focusColor,
+                                    borderRadius: BorderRadius.all(
+                                        Radius.circular(screenSizeHeight * 0.02)),
+                                  ),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.policy_outlined,
+                                        color: Colors.white,
+                                        size: screenSizeHeight * 0.06,
+                                      ),
+                                      Container(
+                                        width: screenSizeWidth * 0.015,
+                                      ),
+                                      Text(
+                                        'Términos y\ncondiciones',
+                                        style: TextStyle(
+                                            color: Colors.white,
+                                            fontStyle: FontStyle.normal,
+                                            fontFamily: 'Gotham',
+                                            decoration: TextDecoration.none,
+                                            fontSize: contentTextWeb,
+                                            fontWeight: FontWeight.w400),
+                                        textAlign: TextAlign.left,
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                             ],
                           ),
-                        ),
+                        ],
                       ),
-                      GestureDetector(
-                        onTap: () {
-                          dialogToPrivacy(screenSizeHeight, screenSizeWidth);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                          padding: EdgeInsets.only(
-                              top: screenSizeHeight * 0.025,
-                              bottom: screenSizeHeight * 0.025,
-                              left: screenSizeWidth * 0.03,
-                              right: screenSizeWidth * 0.03),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).focusColor,
-                            borderRadius: BorderRadius.all(
-                                Radius.circular(screenSizeHeight * 0.02)),
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.policy_outlined,
-                                color: Colors.white,
-                                size: screenSizeHeight * 0.06,
-                              ),
-                              Container(
-                                width: screenSizeWidth * 0.015,
-                              ),
-                              Text(
-                                'Términos y\ncondiciones',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontStyle: FontStyle.normal,
-                                    fontFamily: 'Gotham',
-                                    decoration: TextDecoration.none,
-                                    fontSize: contentTextWeb,
-                                    fontWeight: FontWeight.w400),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -7344,343 +7388,366 @@ class _State extends State<HomeScreen> {
         barrierDismissible: true,
         alignment: Alignment.center,
         builder: (BuildContext context) {
-          return CustomDialogWidget(
+          return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.03))),
-            title: Text(
-              'Mi suscripción de Cumbia',
-              style: TextStyle(
-                  color: Theme.of(context).focusColor,
-                  fontStyle: FontStyle.normal,
-                  fontFamily: 'Gotham',
-                  decoration: TextDecoration.none,
-                  fontSize: secondaryTextWeb,
-                  fontWeight: FontWeight.w700),
-              textAlign: TextAlign.center,
-            ),
+            // title: Text(
+            //   'Mi suscripción de Cumbia',
+            //   style: TextStyle(
+            //       color: Theme.of(context).focusColor,
+            //       fontStyle: FontStyle.normal,
+            //       fontFamily: 'Gotham',
+            //       decoration: TextDecoration.none,
+            //       fontSize: secondaryTextWeb,
+            //       fontWeight: FontWeight.w700),
+            //   textAlign: TextAlign.center,
+            // ),
             backgroundColor: Colors.white,
-            content: Container(
+            child: Container(
+              padding: EdgeInsets.all(screenSizeHeight * 0.03),
               decoration: BoxDecoration(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.02)),
               ),
               width: screenSizeWidth * 0.8,
-              child: ListView(
-                padding: EdgeInsets.only(
-                  top: 0,
-                  left: screenSizeWidth * 0.015,
-                  right: screenSizeWidth * 0.015,
-                  bottom: screenSizeHeight * 0.03,
-                ),
-                shrinkWrap: true,
-                physics: ScrollPhysics(),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          checkOutStripe(suscriptions[0]);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                            height: screenSizeHeight * 0.6,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.only(
-                                top: screenSizeHeight * 0.025,
-                                bottom: screenSizeHeight * 0.04,
-                                left: screenSizeWidth * 0.03,
-                                right: screenSizeWidth * 0.03),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).secondaryHeaderColor,
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(screenSizeHeight * 0.02)),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${suscriptions[0].title}',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Container(
-                                      height: screenSizeHeight * 0.015,
-                                    ),
-                                    Text(
-                                      '\$${suscriptions[0].price}',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: screenSizeHeight * 0.07,
-                                          fontWeight: FontWeight.w700),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Container(
-                                      height: screenSizeHeight * 0.03,
-                                    ),
-                                    Text(
-                                      'Conecta cualquier página web\nbásicas a CumbiaLive',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: contentTextWeb,
-                                          fontWeight: FontWeight.w300),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    checkOutStripe(suscriptions[0]);
-                                  },
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Container(
+                  Container(height: screenSizeHeight * 0.06,),
+                  Text(
+                    'Mi suscripción de Cumbia',
+                    style: TextStyle(
+                        color: Theme.of(context).focusColor,
+                        fontStyle: FontStyle.normal,
+                        fontFamily: 'Gotham',
+                        decoration: TextDecoration.none,
+                        fontSize: secondaryTextWeb,
+                        fontWeight: FontWeight.w700),
+                    textAlign: TextAlign.center,
+                  ),
+                  Container(height: screenSizeHeight * 0.06,),
+                  Expanded(
+                    child: Center(
+                      child: ListView(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                          left: screenSizeWidth * 0.015,
+                          right: screenSizeWidth * 0.015,
+                          bottom: screenSizeHeight * 0.03,
+                        ),
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  checkOutStripe(suscriptions[0]);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                    height: screenSizeHeight * 0.6,
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.only(
-                                        top: screenSizeHeight * 0.015,
-                                        bottom: screenSizeHeight * 0.015,
-                                        left: screenSizeWidth * 0.015,
-                                        right: screenSizeWidth * 0.015),
+                                        top: screenSizeHeight * 0.025,
+                                        bottom: screenSizeHeight * 0.04,
+                                        left: screenSizeWidth * 0.03,
+                                        right: screenSizeWidth * 0.03),
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                screenSizeHeight * 0.01))),
-                                    child: Text(
-                                      'Adquirir este plan',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: contentTextWeb,
-                                          fontWeight: FontWeight.w700),
-                                      textAlign: TextAlign.center,
+                                      color: Theme.of(context).secondaryHeaderColor,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(screenSizeHeight * 0.02)),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            )),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          checkOutStripe(suscriptions[1]);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                            height: screenSizeHeight * 0.6,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.only(
-                                top: screenSizeHeight * 0.025,
-                                bottom: screenSizeHeight * 0.04,
-                                left: screenSizeWidth * 0.03,
-                                right: screenSizeWidth * 0.03),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColor,
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(screenSizeHeight * 0.02)),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${suscriptions[1].title}',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Container(
-                                      height: screenSizeHeight * 0.015,
-                                    ),
-                                    Text(
-                                      '\$${suscriptions[1].price}',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: screenSizeHeight * 0.07,
-                                          fontWeight: FontWeight.w700),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Container(
-                                      height: screenSizeHeight * 0.03,
-                                    ),
-                                    Text(
-                                      'Conecta tu comercio de\nShopify, Woocommerce y\nTiendanube',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: contentTextWeb,
-                                          fontWeight: FontWeight.w300),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    checkOutStripe(suscriptions[1]);
-                                  },
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${suscriptions[0].title}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: secondaryTextWeb,
+                                                  fontWeight: FontWeight.w400),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Container(
+                                              height: screenSizeHeight * 0.015,
+                                            ),
+                                            Text(
+                                              '\$${suscriptions[0].price}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: screenSizeHeight * 0.07,
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Container(
+                                              height: screenSizeHeight * 0.03,
+                                            ),
+                                            Text(
+                                              'Conecta cualquier página web\nbásicas a CumbiaLive',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: contentTextWeb,
+                                                  fontWeight: FontWeight.w300),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            checkOutStripe(suscriptions[0]);
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.only(
+                                                top: screenSizeHeight * 0.015,
+                                                bottom: screenSizeHeight * 0.015,
+                                                left: screenSizeWidth * 0.015,
+                                                right: screenSizeWidth * 0.015),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(
+                                                        screenSizeHeight * 0.01))),
+                                            child: Text(
+                                              'Adquirir este plan',
+                                              style: TextStyle(
+                                                  color: Theme.of(context).focusColor,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: contentTextWeb,
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  checkOutStripe(suscriptions[1]);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                    height: screenSizeHeight * 0.6,
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.only(
-                                        top: screenSizeHeight * 0.015,
-                                        bottom: screenSizeHeight * 0.015,
-                                        left: screenSizeWidth * 0.015,
-                                        right: screenSizeWidth * 0.015),
+                                        top: screenSizeHeight * 0.025,
+                                        bottom: screenSizeHeight * 0.04,
+                                        left: screenSizeWidth * 0.03,
+                                        right: screenSizeWidth * 0.03),
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                screenSizeHeight * 0.01))),
-                                    child: Text(
-                                      'Adquirir este plan',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: contentTextWeb,
-                                          fontWeight: FontWeight.w700),
-                                      textAlign: TextAlign.center,
+                                      color: Theme.of(context).primaryColor,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(screenSizeHeight * 0.02)),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            )),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          checkOutStripe(suscriptions[2]);
-                        },
-                        behavior: HitTestBehavior.opaque,
-                        child: Container(
-                            height: screenSizeHeight * 0.6,
-                            alignment: Alignment.center,
-                            padding: EdgeInsets.only(
-                                top: screenSizeHeight * 0.025,
-                                bottom: screenSizeHeight * 0.04,
-                                left: screenSizeWidth * 0.03,
-                                right: screenSizeWidth * 0.03),
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).primaryColorLight,
-                              borderRadius: BorderRadius.all(
-                                  Radius.circular(screenSizeHeight * 0.02)),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      '${suscriptions[2].title}',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: secondaryTextWeb,
-                                          fontWeight: FontWeight.w400),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Container(
-                                      height: screenSizeHeight * 0.015,
-                                    ),
-                                    Text(
-                                      '\$${suscriptions[2].price}',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: screenSizeHeight * 0.07,
-                                          fontWeight: FontWeight.w700),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                    Container(
-                                      height: screenSizeHeight * 0.03,
-                                    ),
-                                    Text(
-                                      'Conecta tu comercio de\nShopify, Woocommerce CMS,\nTiendanube o cualquier\ndesarrollo web',
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: contentTextWeb,
-                                          fontWeight: FontWeight.w300),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                ),
-                                GestureDetector(
-                                  onTap: () {
-                                    checkOutStripe(suscriptions[2]);
-                                  },
-                                  behavior: HitTestBehavior.opaque,
-                                  child: Container(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${suscriptions[1].title}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: secondaryTextWeb,
+                                                  fontWeight: FontWeight.w400),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Container(
+                                              height: screenSizeHeight * 0.015,
+                                            ),
+                                            Text(
+                                              '\$${suscriptions[1].price}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: screenSizeHeight * 0.07,
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Container(
+                                              height: screenSizeHeight * 0.03,
+                                            ),
+                                            Text(
+                                              'Conecta tu comercio de\nShopify, Woocommerce y\nTiendanube',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: contentTextWeb,
+                                                  fontWeight: FontWeight.w300),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            checkOutStripe(suscriptions[1]);
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.only(
+                                                top: screenSizeHeight * 0.015,
+                                                bottom: screenSizeHeight * 0.015,
+                                                left: screenSizeWidth * 0.015,
+                                                right: screenSizeWidth * 0.015),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(
+                                                        screenSizeHeight * 0.01))),
+                                            child: Text(
+                                              'Adquirir este plan',
+                                              style: TextStyle(
+                                                  color: Theme.of(context).focusColor,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: contentTextWeb,
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                              ),
+                              GestureDetector(
+                                onTap: () {
+                                  checkOutStripe(suscriptions[2]);
+                                },
+                                behavior: HitTestBehavior.opaque,
+                                child: Container(
+                                    height: screenSizeHeight * 0.6,
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.only(
-                                        top: screenSizeHeight * 0.015,
-                                        bottom: screenSizeHeight * 0.015,
-                                        left: screenSizeWidth * 0.015,
-                                        right: screenSizeWidth * 0.015),
+                                        top: screenSizeHeight * 0.025,
+                                        bottom: screenSizeHeight * 0.04,
+                                        left: screenSizeWidth * 0.03,
+                                        right: screenSizeWidth * 0.03),
                                     decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(
-                                                screenSizeHeight * 0.01))),
-                                    child: Text(
-                                      'Adquirir este plan',
-                                      style: TextStyle(
-                                          color: Theme.of(context).focusColor,
-                                          fontStyle: FontStyle.normal,
-                                          fontFamily: 'Gotham',
-                                          decoration: TextDecoration.none,
-                                          fontSize: contentTextWeb,
-                                          fontWeight: FontWeight.w700),
-                                      textAlign: TextAlign.center,
+                                      color: Theme.of(context).primaryColorLight,
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(screenSizeHeight * 0.02)),
                                     ),
-                                  ),
-                                ),
-                              ],
-                            )),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '${suscriptions[2].title}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: secondaryTextWeb,
+                                                  fontWeight: FontWeight.w400),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Container(
+                                              height: screenSizeHeight * 0.015,
+                                            ),
+                                            Text(
+                                              '\$${suscriptions[2].price}',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: screenSizeHeight * 0.07,
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                            Container(
+                                              height: screenSizeHeight * 0.03,
+                                            ),
+                                            Text(
+                                              'Conecta tu comercio de\nShopify, Woocommerce CMS,\nTiendanube o cualquier\ndesarrollo web',
+                                              style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: contentTextWeb,
+                                                  fontWeight: FontWeight.w300),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ],
+                                        ),
+                                        GestureDetector(
+                                          onTap: () {
+                                            checkOutStripe(suscriptions[2]);
+                                          },
+                                          behavior: HitTestBehavior.opaque,
+                                          child: Container(
+                                            alignment: Alignment.center,
+                                            padding: EdgeInsets.only(
+                                                top: screenSizeHeight * 0.015,
+                                                bottom: screenSizeHeight * 0.015,
+                                                left: screenSizeWidth * 0.015,
+                                                right: screenSizeWidth * 0.015),
+                                            decoration: BoxDecoration(
+                                                color: Colors.white,
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(
+                                                        screenSizeHeight * 0.01))),
+                                            child: Text(
+                                              'Adquirir este plan',
+                                              style: TextStyle(
+                                                  color: Theme.of(context).focusColor,
+                                                  fontStyle: FontStyle.normal,
+                                                  fontFamily: 'Gotham',
+                                                  decoration: TextDecoration.none,
+                                                  fontSize: contentTextWeb,
+                                                  fontWeight: FontWeight.w700),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    )),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ],
               ),
@@ -8778,12 +8845,13 @@ class _State extends State<HomeScreen> {
         barrierDismissible: true,
         alignment: Alignment.center,
         builder: (BuildContext context) {
-          return CustomDialogWidget(
+          return Dialog(
             shape: RoundedRectangleBorder(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.03))),
             backgroundColor: Colors.white,
-            content: Container(
+            child: Container(
+              padding: EdgeInsets.all(screenSizeHeight * 0.03),
               decoration: BoxDecoration(
                 borderRadius:
                     BorderRadius.all(Radius.circular(screenSizeHeight * 0.02)),
@@ -9949,12 +10017,13 @@ class _State extends State<HomeScreen> {
         alignment: Alignment.center,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, modalState) {
-            return CustomDialogWidget(
+            return Dialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                       Radius.circular(screenSizeHeight * 0.03))),
               backgroundColor: Colors.white,
-              content: Container(
+              child: Container(
+                padding: EdgeInsets.all(screenSizeHeight * 0.03),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(
                       Radius.circular(screenSizeHeight * 0.02)),
@@ -10824,12 +10893,13 @@ class _State extends State<HomeScreen> {
         alignment: Alignment.center,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, modalState) {
-            return CustomDialogWidget(
+            return Dialog(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                       Radius.circular(screenSizeHeight * 0.03))),
               backgroundColor: Colors.white,
-              content: Container(
+              child: Container(
+                padding: EdgeInsets.all(screenSizeHeight * 0.03),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.all(
                       Radius.circular(screenSizeHeight * 0.02)),
@@ -11425,10 +11495,10 @@ class _State extends State<HomeScreen> {
         double progress=0.0;
 
         return StatefulBuilder(builder: (context, modalState) {
-          return CustomDialogWidget(
+          return Dialog(
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(screenSizeHeight * 0.02))),
             backgroundColor: Colors.white,
-            content: Container(
+            child: Container(
               padding: EdgeInsets.all(screenSizeHeight * 0.03),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.all(Radius.circular(screenSizeHeight * 0.01)),

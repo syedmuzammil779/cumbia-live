@@ -1,20 +1,10 @@
-import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cumbia_live_company/common/color_constants.dart';
-import 'package:cumbia_live_company/theme/theme.dart';
 import 'package:cumbia_live_company/zego_config.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 
-import 'Models/Shopify/shopify_product_model.dart';
-import 'Models/Structs.dart';
-import 'Models/WooCommerce/woo_commerce_product_model.dart';
 
 class StreamVideoPlayerScreen extends StatefulWidget {
   final String videoId;

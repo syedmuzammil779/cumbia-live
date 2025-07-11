@@ -4,7 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cumbia_live_company/common/color_constants.dart';
 import 'package:cumbia_live_company/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+// import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
+import 'package:flutter_animated_dialog_updated/flutter_animated_dialog.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
@@ -217,7 +218,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     addToCartDialog(screenSizeWidth, screenSizeHeight) async {
       showAnimatedDialog(
         context: context,
-        barrierColor: Colors.transparent,
+        // barrierColor: Colors.transparent,
         alignment: Alignment.center,
         builder: (BuildContext context) {
           return CustomDialogWidget(
