@@ -4,7 +4,6 @@ import 'package:cumbia_live_company/payback_page.dart';
 import 'package:cumbia_live_company/streamVideo.dart';
 import 'package:cumbia_live_company/zego_config.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';

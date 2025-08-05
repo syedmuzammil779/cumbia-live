@@ -1,20 +1,28 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:html' as html;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cumbia_live_company/CallPage.dart';
 import 'package:cumbia_live_company/Models/Constants.dart';
 import 'package:cumbia_live_company/Models/Shopify/shopify_product_model.dart';
 import 'package:cumbia_live_company/Models/Structs.dart';
 import 'package:cumbia_live_company/add_new_event/centered_view/upload_screen.dart';
 import 'package:cumbia_live_company/add_new_event/live_stream_url/live_stream_url_screen.dart';
+import 'package:cumbia_live_company/add_new_event/live_stream_url/model/ShopifyProduct.dart';
+import 'package:cumbia_live_company/controller/CreateLiveStreamUrlController.dart';
 import 'package:cumbia_live_company/homeScreen.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dotted_border/dotted_border.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:http/http.dart' as http;
+import 'package:uuid/uuid.dart';
 
 class ProductsScreen extends StatefulWidget {
   const ProductsScreen({super.key});
@@ -79,7 +87,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                   height: 0.1.sh,
                 ),
                 Container(
-                  height: 104.h,
+                  height: 120.h,
                   // width: 1.0.sw,
                   // color: Colors.red,
                   child: SingleChildScrollView(
@@ -91,7 +99,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,7 +126,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -145,7 +153,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -173,7 +181,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,7 +208,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -275,7 +283,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              // Navigator.of(context).push(MaterialPageRoute(builder: (context)=>UrlScreen() ));
+                              // saveNewStreamData();
                               Navigator.of(context).push(
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation, secondaryAnimation) => UrlScreen(),
@@ -403,21 +411,31 @@ class _ProductsScreen extends State<ProductsScreen> {
 
   //Get  ShopifyProducts
   Future<void> getShopifyProducts() async {
-
     dialogoCarga('Actualizando información...');
-    String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
-    String token = companyInfo.accessToken ?? "";
 
-    Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
+    String baseUrl = "https://www.diamondeseller.com";
+    String token = "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";
+    String endpoint = "/admin/api/2023-01/products.json";
+
+    Uri getUrl = Uri.parse('$baseUrl$endpoint');
 
     try {
-      print("Call post $postURL");
-      final response = await http.post(postURL);
-      log("Response"+response.body);
+      print("getShopifyProducts ---- Calling GET $getUrl");
 
-      if (response.body != 'error') {
+      final response = await http.post(
+        getUrl,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": token,
+        },
+      );
+
+      print("getShopifyProducts ---- Response: ${response.statusCode}");
+      print("Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
-        List shopProducts = data['data']['products'];
+        List shopProducts = data['products'];
 
         for (var productData in shopProducts) {
           var product = ShopifyProductModel.fromJson(productData);
@@ -432,91 +450,91 @@ class _ProductsScreen extends State<ProductsScreen> {
             }
           });
         }
+      } else {
+        print("Shopify API Error: ${response.statusCode} - ${response.body}");
       }
     } catch (e) {
-      // Handle error
-    }finally{
+      print("getShopifyProducts ---- Catch error: $e");
+    } finally {
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
 
-  List<ShopifyProductModel> productsSelected = [];
 
   Widget productShowWidget(index, screenSizeWidth, screenSizeHeight) {
-    List<ShopifyProductModel>  products = allProducts.shopProducts??[];
+    // List<ShopifyProductModel>  products = allProducts.shopProducts??[];
+    List<ShopifyProduct> products = hardcodedProducts;
     return Container(
+      width: screenSizeWidth * 0.7,
+      padding: EdgeInsets.all(screenSizeHeight * 0.03),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(screenSizeHeight * 0.02),
+      ),
       child: GestureDetector(
         onTap: () {
-          if (productsSelected.contains(products[index])) {
-            var support =
-            productsSelected.indexOf(products[index]);
+          if (createLiveStreamUrlController.shopifyProductSelected.contains(products[index])) {
+            var support = createLiveStreamUrlController.shopifyProductSelected.indexOf(products[index]);
             setState(() {
-              productsSelected.removeAt(support);
+              createLiveStreamUrlController.shopifyProductSelected.removeAt(support);
             });
           } else {
             setState(() {
-              products[index].from=null;
-              productsSelected.add(products[index]);
+              createLiveStreamUrlController.shopifyProductSelected.add(products[index]);
             });
           }
+          createLiveStreamUrlController.update();
         },
         behavior: HitTestBehavior.opaque,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Expanded(
-              child: Stack(
-                alignment: Alignment.topRight,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.only(
-                        topRight:
-                        Radius.circular(screenSizeHeight * 0.02),
-                        topLeft:
-                        Radius.circular(screenSizeHeight * 0.02)),
-                    child: Container(
-                      height: screenSizeHeight * 0.20,
-                      decoration: BoxDecoration(
-                        image: products[index].images == ''?DecorationImage(image:AssetImage('assets/img/photo_1.png'), fit: BoxFit.cover):
-                        DecorationImage(image:NetworkImage(products[index].images??""), fit: BoxFit.cover),
-                      ),
+            Stack(
+              alignment: Alignment.topRight,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(20),
+                      topLeft: Radius.circular(20)),
+                  child: Container(
+                    height: 100,
+                    decoration: BoxDecoration(
+                      image: products[index].imageUrl == ''?DecorationImage(image:AssetImage('assets/img/photo_1.png'), fit: BoxFit.cover):
+                      DecorationImage(image:NetworkImage(products[index].imageUrl??""), fit: BoxFit.cover),
                     ),
                   ),
-                  Visibility(
-                    visible: productsSelected.contains(products[index]),
-                    child: Icon(
-                      Icons.check_circle,
-                      color: Theme.of(context).primaryColor,
-                    ),
+                ),
+                Visibility(
+                  visible: createLiveStreamUrlController.shopifyProductSelected.contains(products[index]),
+                  child: Icon(
+                    Icons.check_circle,
+                    color: Theme.of(context).primaryColor,
                   ),
-                ],
-              ),
-            ),
-            Container(
-              height: screenSizeHeight * 0.015,
+                ),
+              ],
             ),
             Text(
               '${products[index].title}',
               style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor,
+                  color: Colors.red,
                   fontStyle: FontStyle.normal,
                   fontFamily: 'Gotham',
                   decoration: TextDecoration.none,
-                  fontSize: contentTextWeb,
+                  fontSize: 18,
                   fontWeight: FontWeight.w400),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
             ),
             Text(
-              '${products[index].productType??""}',
+              // '${products[index].productType??""}',
+              'Shopify',
               style: TextStyle(
                   color: Theme.of(context).secondaryHeaderColor,
                   fontStyle: FontStyle.normal,
                   fontFamily: 'Gotham',
                   decoration: TextDecoration.none,
-                  fontSize: contentTextWeb,
+                  fontSize: 18,
                   fontWeight: FontWeight.w300),
               textAlign: TextAlign.center,
             ),
@@ -527,7 +545,7 @@ class _ProductsScreen extends State<ProductsScreen> {
                   fontStyle: FontStyle.normal,
                   fontFamily: 'Gotham',
                   decoration: TextDecoration.none,
-                  fontSize: smallTextWeb,
+                  fontSize: 15,
                   fontWeight: FontWeight.w400),
               textAlign: TextAlign.center,
             ),
@@ -579,6 +597,8 @@ class _ProductsScreen extends State<ProductsScreen> {
   }
 
   Widget showProductsView() {
+    var screenSizeHeight = MediaQuery.of(context).size.height;
+    var screenSizeWidth = MediaQuery.of(context).size.width;
     return Container(
         height: MediaQuery.of(context).size.height * 0.5,
         child: ListView(
@@ -605,27 +625,25 @@ class _ProductsScreen extends State<ProductsScreen> {
               height: MediaQuery.of(context).size.height * 0.03,
             ),
             Visibility(
-              visible: products.length == 0 ? false : true,
+              visible: hardcodedProducts.length == 0 ? false : true,
               child: GridView.builder(
-                padding: EdgeInsets.only(top: 0),
+                padding: EdgeInsets.only(right: 100, left: 100),
                 physics: ScrollPhysics(),
                 shrinkWrap: true,
                 gridDelegate:
                 SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
                   childAspectRatio: 0.7,
-                  crossAxisSpacing: MediaQuery.of(context).size.height * 0.05,
-                  mainAxisSpacing: MediaQuery.of(context).size.height * 0.1,
-                  crossAxisCount: 2,
+                  crossAxisCount: 4,
                 ),
-                itemCount:
-                products.length == 0 ? 1 : products.length,
+                itemCount: hardcodedProducts.length == 0 ? 1 : hardcodedProducts.length,
                 itemBuilder: (context, int index) =>
-                    productShowWidget(index, MediaQuery.of(context).size.width,
-                        MediaQuery.of(context).size.height),
+                    productShowWidget(index, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
               ),
             ),
             Visibility(
-                visible: products.length == 0 ? true : false,
+                visible: hardcodedProducts.length == 0 ? true : false,
                 child: CupertinoActivityIndicator()),
           ],
         ));
@@ -698,5 +716,67 @@ class _ProductsScreen extends State<ProductsScreen> {
     }
   }
 
+
+  CreateLiveStreamUrlController createLiveStreamUrlController = Get.put(CreateLiveStreamUrlController());
+  final List<ShopifyProduct> hardcodedProducts = [ // for now use dummy products because backend is not working
+    ShopifyProduct(
+      id: 8115812925611,
+      title: "100 💎",
+      imageUrl: "https://cdn.shopify.com/s/files/1/0668/5805/7905/files/3.png?v=1726441027",
+      price: "1445.00",
+    ),
+    ShopifyProduct(
+      id: 8115812925612,
+      title: "1,000 💎",
+      imageUrl: "https://cdn.shopify.com/s/files/1/0668/5805/7905/files/3.png?v=1726441027",
+      price: "25.00",
+    ),
+    ShopifyProduct(
+      id: 8115812925613,
+      title: "2,000 💎",
+      imageUrl: "https://cdn.shopify.com/s/files/1/0668/5805/7905/files/3.png?v=1726441027",
+      price: "77.00",
+    ),
+    ShopifyProduct(
+      id: 8115812925614,
+      title: "4,000 💎",
+      imageUrl: "https://cdn.shopify.com/s/files/1/0668/5805/7905/files/3.png?v=1726441027",
+      price: "53.00",
+    )
+  ];
+
+  void saveNewStreamData() async {
+
+    var streamID = Uuid().v4();
+    var roomID = Uuid().v4();
+
+    StreamsData saveStream = StreamsData(
+        streamID: streamID,
+        roomID: roomID,
+        createdBy: createLiveStreamUrlController.userInfo.userUID,
+        businessID: createLiveStreamUrlController.companyInfo.companyID,
+        status: 'En espera',
+        ecommercePlatform: createLiveStreamUrlController.companyInfo.storePlatform);
+
+    var refCompany = createLiveStreamUrlController.db.collection('streams').doc(streamID);
+
+    refCompany
+        .set(saveStream.createStream(createLiveStreamUrlController.productsSelected))
+        .whenComplete(() async {
+      final copyUrl = html.window.location.href + "#/liveStream/" + "${saveStream.streamID ?? ''}";
+      print("** wk url: $copyUrl");
+      Clipboard.setData(ClipboardData(text: copyUrl)).then((_) {
+        print("Text copied to clipboard!");
+      });
+      Navigator.of(context).push(CupertinoPageRoute(
+          builder: (context) => CallPage(
+            localUserID: createLiveStreamUrlController.userInfo.userUID,
+            localUserName: createLiveStreamUrlController.companyInfo.name,
+            roomID: roomID,
+            stream: saveStream,
+          )));
+    }).catchError((error) {
+    });
+  }
 
 }

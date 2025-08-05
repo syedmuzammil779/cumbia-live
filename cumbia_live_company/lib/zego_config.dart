@@ -6,7 +6,7 @@ class ZegoConfig {
   static final ZegoConfig instance = ZegoConfig._internal();
   ZegoConfig._internal();
 
-  int appID = 1742640984;
+  int appID = 1089943119;
   String appSign = "a50d8be62818c3b2b8474be50db0aac534f07ce0d346d9dbd42192d8b909b428"; // Not used for Web
   final String serverSecret = '2928845bd6a3e237576eb8e9ec639dbd';
   ZegoScenario scenario = ZegoScenario.Broadcast;

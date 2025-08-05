@@ -1,10 +1,14 @@
 import 'package:cumbia_live_company/add_new_event/centered_view/ProductsScreen.dart';
+import 'package:cumbia_live_company/controller/CreateLiveStreamUrlController.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
 
 import 'dart:typed_data';
+
+import 'package:get/get_core/src/get_main.dart';
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -14,13 +18,14 @@ class UploadScreen extends StatefulWidget {
 }
 
 class _UploadScreen extends State<UploadScreen> {
+  CreateLiveStreamUrlController createLiveStreamUrlController = Get.put(CreateLiveStreamUrlController());
+
   Uint8List? myImage;
 
   @override
   void initState() {
     super.initState();
   }
-
   Future<void> pickImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -28,11 +33,37 @@ class _UploadScreen extends State<UploadScreen> {
     );
 
     if (result != null && result.files.single.bytes != null) {
+      final bytes = result.files.single.bytes!;
+
       setState(() {
-        myImage = result.files.single.bytes!;
+        myImage = bytes;
       });
+
+      // Show loading dialog
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      try {
+        // Upload to Firebase
+        final url = await createLiveStreamUrlController.uploadImageToFirebase(bytes);
+
+        // Save URL to controller
+        createLiveStreamUrlController.setBannerUrl(url);
+      } catch (e) {
+        print('Upload failed: $e');
+        // Optional: show error dialog/snackbar
+      } finally {
+        // Dismiss the loading dialog
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     }
   }
+
 
   bool uploadStatus = false;
 
@@ -66,7 +97,7 @@ class _UploadScreen extends State<UploadScreen> {
                   height: 0.1.sh,
                 ),
                 Container(
-                  height: 104.h,
+                  height: 120.h,
                   // width: 1.0.sw,
                   // color: Colors.red,
                   child: SingleChildScrollView(
@@ -78,7 +109,7 @@ class _UploadScreen extends State<UploadScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -109,7 +140,7 @@ class _UploadScreen extends State<UploadScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -140,7 +171,7 @@ class _UploadScreen extends State<UploadScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -173,7 +204,7 @@ class _UploadScreen extends State<UploadScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -218,7 +249,7 @@ class _UploadScreen extends State<UploadScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment:
@@ -513,6 +544,10 @@ class _UploadScreen extends State<UploadScreen> {
                           ElevatedButton(
                             onPressed: () {
                               // Navigator.of(context).push(MaterialPageRoute(builder: (context) => ProductsScreen()));
+                              if ((createLiveStreamUrlController.bannerUrl??"").isEmpty) {
+                                Get.snackbar('Falta imagen', 'Por favor sube un banner');
+                                return;
+                              }
                               Navigator.of(context).push(
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation,

@@ -1,25 +1,26 @@
 import 'dart:math' as Math;
 
 import 'package:cumbia_live_company/add_new_event/centered_view/upload_screen.dart';
-import 'package:cumbia_live_company/add_new_event/time_picker/CustomTimePicker.dart';
 import 'package:cumbia_live_company/add_new_event/time_picker/clock_time_picker_screen.dart';
+import 'package:cumbia_live_company/controller/CreateLiveStreamUrlController.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:intl/intl.dart';
-import 'package:intl/date_symbol_data_local.dart';
-import 'package:time_picker_spinner/time_picker_spinner.dart';
-
-import '../newEvent.dart';
 
 class SetDateTimeForEventScreen extends StatefulWidget {
   const SetDateTimeForEventScreen({super.key});
 
   @override
-  State<SetDateTimeForEventScreen> createState() => _SetDateTimeForEventScreenState();
+  State<SetDateTimeForEventScreen> createState() =>
+      _SetDateTimeForEventScreenState();
 }
 
 class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
+  CreateLiveStreamUrlController createLiveStreamUrlController = Get.put(CreateLiveStreamUrlController());
+
   TimeOfDay? selectedTime;
   int selectedMinute = 0;
   bool isSelectedhour = true;
@@ -44,7 +45,7 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
   }
 
   DateTime selectedDate = DateTime.now();
-  bool isDataTab = true; // Toggle between "DATA" and "HORA"
+  bool isDateTabSelected = true; // Toggle between "DATA" and "HORA"
 
   String get formattedDate {
     return DateFormat('EEEE, MMMM d', 'es_ES').format(selectedDate);
@@ -78,7 +79,6 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: Container(
-        height: 1.0.sh,
         width: 1.0.sw,
         child: Column(
           children: [
@@ -103,7 +103,6 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
               height: 0.1.sh,
             ),
             Container(
-              height: 104.h,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Column(
@@ -113,7 +112,7 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          height: 104.h,
+                          height: 120.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -142,7 +141,7 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
                           ),
                         ),
                         Container(
-                          height: 104.h,
+                          height: 120.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -171,7 +170,7 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
                           ),
                         ),
                         Container(
-                          height: 104.h,
+                          height: 120.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -216,7 +215,7 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
                           ),
                         ),
                         Container(
-                          height: 104.h,
+                          height: 120.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -260,7 +259,7 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
                           ),
                         ),
                         Container(
-                          height: 104.h,
+                          height: 120.h,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -296,267 +295,296 @@ class _SetDateTimeForEventScreenState extends State<SetDateTimeForEventScreen> {
                 ),
               ),
             ),
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Container(
-                  height: 600.h,
-                  width: MediaQuery.of(context).size.width * 0.3,
-                  // color: Colors.blue,// subtract header height
-                  child: Column(children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => isDataTab = true),
-                            child: Container(
-                              height: 35.h,
-                              width: 161.w,
-                              color: Color(0xFF1F6977),
-                              child: Center(
-                                child: Text(
-                                  'DATA',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+            Container(
+              width: MediaQuery.of(context).size.width * 0.3,
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Column(children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () =>
+                            setState(() => isDateTabSelected = true),
+                        child: Container(
+                          height: 35.h,
+                          width: 161.w,
+                          color: Color(0xFF1F6977),
+                          child: Center(
+                            child: Text(
+                              'DATA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
                         ),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () async {
-                              setState(() => isDataTab = false);
-                            },
-                            child: Container(
-                              height: 35.h,
-                              width: 161.w,
-                              color: Color(0xFF3491A2),
-                              child: Center(
-                                child: Text(
-                                  'HORA',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                      ),
+                    ),
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () async {
+                          setState(() => isDateTabSelected = false);
+                        },
+                        child: Container(
+                          height: 35.h,
+                          width: 161.w,
+                          color: Color(0xFF3491A2),
+                          child: Center(
+                            child: Text(
+                              'HORA',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                if (isDateTabSelected) ...[
+                  Container(
+                    width: double.infinity,
+                    height: 62.h,
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    color: const Color(0xFF30B0C7),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          selectedDate.year.toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12.sp,
+                            color: Colors.grey[200],
+                          ),
+                        ),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 14.sp,
+                            color: Colors.white,
                           ),
                         ),
                       ],
-                    ), // Selected Date
-
-                    if (isDataTab) ...[
-                      // Month and Arrows
-                      Container(
-                        width: double.infinity,
-                        height: 62.h,
-                        padding: EdgeInsets.symmetric(horizontal: 20.w),
-                        decoration: BoxDecoration(color: Color(0xFF30B0C7)),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              selectedDate.year.toString(),
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 12.sp,
-                                  color: Colors.grey[200]),
-                            ),
-                            Text(
-                              formattedDate,
-                              style: TextStyle(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 14.sp,
-                                  color: Colors.white),
-                            ),
-                          ],
+                    ),
+                  ),
+                  Container(
+                    height: 45.h,
+                    color: const Color(0xFFF4F4F4),
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        IconButton(
+                          onPressed: () => _changeMonth(false),
+                          icon: const Icon(Icons.chevron_left,
+                              color: Color(0xFF1F6977)),
                         ),
-                      ),
-                      Container(
-                        height: 45.h,
-                        color: Color(0xFFF4F4F4),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            IconButton(
-                              onPressed: () => _changeMonth(false),
-                              icon: const Icon(Icons.chevron_left,
-                                  color: Color(0xFF1F6977)),
-                            ),
-                            Text(
-                              DateFormat('MMMM yyyy', 'es_ES')
-                                  .format(selectedDate),
-                              style: const TextStyle(
-                                  fontSize: 18,
+                        Text(
+                          DateFormat('MMMM yyyy', 'es_ES')
+                              .format(selectedDate),
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF1F6977),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () => _changeMonth(true),
+                          icon: const Icon(Icons.chevron_right,
+                              color: Color(0xFF1F6977)),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do']
+                          .map((d) => Text(
+                                d,
+                                style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1F6977)),
-                            ),
-                            IconButton(
-                              onPressed: () => _changeMonth(true),
-                              icon: const Icon(Icons.chevron_right,
-                                  color: Color(0xFF1F6977)),
-                            ),
-                          ],
-                        ),
-                      ),
-                      // Days Row
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sa', 'Do']
-                            .map((d) => Text(
-                                  d,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF30B0C7)),
-                                ))
-                            .toList(),
-                      ),
-                      const SizedBox(height: 8),
-                      // Calendar Grid
-                      Container(
-                        height: 400.h,
-                        width: MediaQuery.of(context).size.width * 0.3,
-                        // color: Colors.red,
-                        child: Expanded(
-                          child: GridView.count(
-                            crossAxisCount: 7,
-                            children: dates.map((date) {
-                              if (date == null) return const SizedBox.shrink();
-                              final isSelected = date.day == selectedDate.day &&
-                                  date.month == selectedDate.month &&
-                                  date.year == selectedDate.year;
+                                  color: Color(0xFF30B0C7),
+                                ),
+                              ))
+                          .toList(),
+                    ),
+                  ),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 7,
+                    padding: EdgeInsets.zero,
+                    children: dates.map((date) {
+                      final now = DateTime.now();
+                      final today =
+                          DateTime(now.year, now.month, now.day);
+                      final currentDate =
+                          DateTime(date.year, date.month, date.day);
+                      final isDisabled = currentDate.isBefore(today);
+                      final isSelected = date.day == selectedDate.day &&
+                          date.month == selectedDate.month &&
+                          date.year == selectedDate.year;
 
-                              final isInCurrentMonth =
-                                  date.month == selectedDate.month &&
-                                      date.year == selectedDate.year;
-                              return GestureDetector(
-                                onTap: () =>
-                                    setState(() => selectedDate = date),
-                                child: Container(
-                                  margin: const EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                      color: isSelected ? Colors.teal : Colors.transparent,
-                                      borderRadius: BorderRadius.circular(50),
-                                      ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${date.day}',
-                                    style: TextStyle(
-                                      color: isSelected
-                                          ? Colors.white
-                                          : isInCurrentMonth
-                                              ? Colors.black
-                                              : const Color(0xFF3491A2),
-                                      // ← Color for other months
-                                      fontWeight: FontWeight.bold,
-                                      decoration: TextDecoration.none,
-                                      decorationColor: isSelected
-                                          ? const Color(0xFF1F6977)
-                                          : Colors.transparent,
-                                    ),
+                      final isInCurrentMonth =
+                          date.month == selectedDate.month &&
+                              date.year == selectedDate.year;
+
+                      return GestureDetector(
+                        onTap: isDisabled
+                            ? null // disables tap
+                            : () {
+                                setState(() {
+                                  selectedDate = date;
+                                  isDateTabSelected = false;
+                                });
+                              },
+                        child: Container(
+                          margin: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? Colors.teal
+                                : Colors.transparent,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            '${date.day}',
+                            style: TextStyle(
+                              color: isDisabled
+                                  ? Colors.grey[
+                                      400] // faded color for disabled dates
+                                  : isSelected
+                                      ? Colors.white
+                                      : isInCurrentMonth
+                                          ? Colors.black
+                                          : const Color(0xFF3491A2),
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ] else ...[
+                  ClockTimePicker(
+                    selectedDate: selectedDate,
+                    onTimeSelected: (_selectedData) {
+                      setState(() {
+                        selectedTime = TimeOfDay(hour: _selectedData.hour, minute: _selectedData.minute);
+                      });
+                    },
+                  )
+                ],
+                Center(
+                  child: Container(
+                      height: 55.h,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Expanded(
+                            child: Container(
+                              height: 48.h,
+                              margin: EdgeInsets.only(right: 20.w),
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  "Cancelar",
+                                  style: TextStyle(
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF0F8DA3)),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                  side: const BorderSide(
+                                    color: Color(0xFF0F8DA3), // Border color
+                                    width: 2, // Border width
                                   ),
                                 ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      ClockTimePicker(
-                        selectedDate: selectedDate,
-                        onTimeSelected: (_selectedData) {
-                          setState(() {
-                            selectedDate = _selectedData;
-
-                          });
-                        },
-                      )
-                    ]
-                  ]),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 50.h,
-            ),
-            Center(
-              child: Container(
-                  height: 55.h,
-                  width: 0.4.sw,
-                  // color: Colors.red,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          "Cancelar",
-                          style: TextStyle(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xFF0F8DA3)),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                          minimumSize: Size(271.w, 55.h),
-                          side: const BorderSide(
-                            color: Color(0xFF0F8DA3), // Border color
-                            width: 2, // Border width
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => Uploadscreen(),
-                          //   ),
-                          // );
-                          Navigator.of(context).push(
-                            PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      UploadScreen(),
-                              transitionDuration: Duration.zero,
-                              reverseTransitionDuration: Duration.zero,
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                return child;
-                              },
+                              ),
                             ),
-                          );
-                        },
-                        child: Text(
-                          "Configurar día",
-                          style: TextStyle(
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.white),
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFF0F8DA3),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8)),
-                          minimumSize: Size(271.w, 55.h),
-                          side: const BorderSide(
-                            color: Color(0xFF0F8DA3), // Border color
-                            width: 2, // Border width
                           ),
-                        ),
-                      )
-                    ],
-                  )),
-            )
+                          Expanded(
+                            child: Container(
+                              height: 48.h,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  if (selectedTime == null) {
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) => AlertDialog(
+                                        backgroundColor: Colors.white,
+                                        title: Text('Hora no seleccionada'),
+                                        content: Text('Por favor selecciona una hora antes de continuar.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () => Navigator.of(context).pop(),
+                                            child: Text('OK'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    return;
+                                  }
+
+                                  // Combine selected date and time into a full DateTime
+                                  final date = DateTime(
+                                    selectedDate.year,
+                                    selectedDate.month,
+                                    selectedDate.day,
+                                    selectedTime!.hour,
+                                    selectedTime!.minute,
+                                  );
+
+                                  // Pass to controller
+                                  createLiveStreamUrlController.setEventDate(date);
+
+                                  // Navigate to UploadScreen
+                                  Navigator.of(context).push(
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation, secondaryAnimation) => UploadScreen(),
+                                      transitionDuration: Duration.zero,
+                                      reverseTransitionDuration: Duration.zero,
+                                      transitionsBuilder: (context, animation, secondaryAnimation, child) => child,
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "Configurar día",
+                                  style: TextStyle(
+                                      fontSize: 20.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.white),
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Color(0xFF0F8DA3),
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8)),
+                                  side: const BorderSide(
+                                    color: Color(0xFF0F8DA3), // Border color
+                                    width: 2, // Border width
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      )),
+                )
+              ]),
+            ),
           ],
         ),
       ),

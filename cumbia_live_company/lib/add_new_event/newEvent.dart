@@ -7,8 +7,6 @@ class NewEventScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var screenSizeHeight = MediaQuery.of(context).size.height;
-    var screenSizeWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -29,7 +27,8 @@ class NewEventScreen extends StatelessWidget {
                         height: 117.h,
                         width: 252.w,
                         // color: Colors.red,
-                        child: Center(child: Image.asset('assets/img/applogo.png')))
+                        child: Center(
+                            child: Image.asset('assets/img/applogo.png')))
                   ],
                 ),
               ),
@@ -37,9 +36,7 @@ class NewEventScreen extends StatelessWidget {
                 height: 145.h,
               ),
               Container(
-                height: 104.h,
-                // width: 1.0.sw,
-                // color: Colors.red,
+                height: 120.h,
                 child: SingleChildScrollView(
                   scrollDirection: Axis.horizontal,
                   child: Column(
@@ -49,7 +46,7 @@ class NewEventScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Container(
-                            height: 104.h,
+                            height: 120.h,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -57,9 +54,10 @@ class NewEventScreen extends StatelessWidget {
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      radius: 67.79.w /2,
+                                      radius: 67.79.w / 2,
                                       backgroundColor: Color(0xFF15BECE),
-                                      child: Image.asset('assets/img/check.png'),
+                                      child:
+                                          Image.asset('assets/img/check.png'),
                                     ),
                                     Container(
                                       width: 89.54.w,
@@ -68,14 +66,17 @@ class NewEventScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                Text("Crear evento",
-                                  style: TextStyle(fontSize: 12.sp,fontWeight: FontWeight.w600),
+                                Text(
+                                  "Crear evento",
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600),
                                 )
                               ],
                             ),
                           ),
                           Container(
-                            height: 104.h,
+                            height: 120.h,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -83,9 +84,10 @@ class NewEventScreen extends StatelessWidget {
                                 Row(
                                   children: [
                                     CircleAvatar(
-                                      radius: 67.79.w /2,
+                                      radius: 67.79.w / 2,
                                       backgroundColor: Color(0xFF15BECE),
-                                      child: Image.asset('assets/img/check.png'),
+                                      child:
+                                          Image.asset('assets/img/check.png'),
                                     ),
                                     Container(
                                       width: 89.54.w,
@@ -94,14 +96,17 @@ class NewEventScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                Text("Configurar día",
-                                  style: TextStyle(fontSize: 12.sp,fontWeight: FontWeight.w600),
+                                Text(
+                                  "Configurar día",
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600),
                                 )
                               ],
                             ),
                           ),
                           Container(
-                            height: 104.h,
+                            height: 120.h,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -111,11 +116,11 @@ class NewEventScreen extends StatelessWidget {
                                   children: [
                                     Container(
                                       decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Color(0xFF9CA3AF),
-                                          width: 6,
-                                        )),
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Color(0xFF9CA3AF),
+                                            width: 6,
+                                          )),
                                       child: CircleAvatar(
                                         radius: 30.sp,
                                         backgroundColor: Colors.white,
@@ -123,25 +128,30 @@ class NewEventScreen extends StatelessWidget {
                                           child: Container(
                                             height: 23.02.h,
                                             width: 23.02.w,
-                                            decoration: BoxDecoration(shape: BoxShape.circle, color: Color(0xFFD1D5DB)),
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0xFFD1D5DB)),
                                           ),
                                         ),
                                       ),
                                     ),
                                     Container(
-                                      width: 89.54.w,
-                                      height: 3.2,
-                                        color: Color(0xFFD1D5DB)                                    ),
+                                        width: 89.54.w,
+                                        height: 3.2,
+                                        color: Color(0xFFD1D5DB)),
                                   ],
                                 ),
-                                Text("Subir banner",
-                                  style: TextStyle(fontSize: 12.sp,fontWeight: FontWeight.w600),
+                                Text(
+                                  "Subir banner",
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600),
                                 )
                               ],
                             ),
                           ),
                           Container(
-                            height: 104.h,
+                            height: 120.h,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -162,24 +172,30 @@ class NewEventScreen extends StatelessWidget {
                                           child: Container(
                                             height: 23.02.h,
                                             width: 23.02.w,
-                                            decoration: BoxDecoration(shape: BoxShape.circle, color: Color(0xFFD1D5DB)),
+                                            decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0xFFD1D5DB)),
                                           ),
                                         ),
                                       ),
-                                    ),                                    Container(
-                                      width: 89.54.w,
-                                      height: 3.2,
-                                        color: Color(0xFFD1D5DB)                                    ),
+                                    ),
+                                    Container(
+                                        width: 89.54.w,
+                                        height: 3.2,
+                                        color: Color(0xFFD1D5DB)),
                                   ],
                                 ),
-                                Text("Seleccionar",
-                                  style: TextStyle(fontSize: 12.sp,fontWeight: FontWeight.w600),
+                                Text(
+                                  "Seleccionar",
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600),
                                 )
                               ],
                             ),
                           ),
                           Container(
-                            height: 104.h,
+                            height: 120.h,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -200,8 +216,11 @@ class NewEventScreen extends StatelessWidget {
                                     ),
                                   ],
                                 ),
-                                Text("URL estática",
-                                  style: TextStyle(fontSize: 12.sp,fontWeight: FontWeight.w600),
+                                Text(
+                                  "URL estática",
+                                  style: TextStyle(
+                                      fontSize: 12.sp,
+                                      fontWeight: FontWeight.w600),
                                 )
                               ],
                             ),
@@ -255,7 +274,10 @@ class NewEventScreen extends StatelessWidget {
                             child: Center(
                               child: Text(
                                 'Nuevo evento',
-                                style: TextStyle(color: Colors.white, fontSize: 28.sp, fontWeight: FontWeight.w600),
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 28.sp,
+                                    fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
@@ -288,10 +310,16 @@ class NewEventScreen extends StatelessWidget {
                                       // Navigator.of(context).push(MaterialPageRoute(builder: (context) => const Datepickerscreen()));
                                       Navigator.of(context).push(
                                         PageRouteBuilder(
-                                          pageBuilder: (context, animation, secondaryAnimation) => SetDateTimeForEventScreen(),
+                                          pageBuilder: (context, animation,
+                                                  secondaryAnimation) =>
+                                              SetDateTimeForEventScreen(),
                                           transitionDuration: Duration.zero,
-                                          reverseTransitionDuration: Duration.zero,
-                                          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                          reverseTransitionDuration:
+                                              Duration.zero,
+                                          transitionsBuilder: (context,
+                                              animation,
+                                              secondaryAnimation,
+                                              child) {
                                             return child;
                                           },
                                         ),
@@ -309,7 +337,8 @@ class NewEventScreen extends StatelessWidget {
                       width: 497.w,
                       height: 220.h,
                       decoration: BoxDecoration(
-                        color: Color(0xFF15BECE), // outer container color (optional)
+                        color: Color(0xFF15BECE),
+                        // outer container color (optional)
                         borderRadius: BorderRadius.only(
                           topLeft: Radius.circular(16.r),
                           topRight: Radius.circular(16.r),
@@ -325,7 +354,8 @@ class NewEventScreen extends StatelessWidget {
                             width: double.infinity,
                             padding: EdgeInsets.all(16.h),
                             decoration: BoxDecoration(
-                              color: Color(0xFFF15BECE), // outer container color (optional)
+                              color: Color(0xFFF15BECE),
+                              // outer container color (optional)
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(24.r),
                                 topRight: Radius.circular(24.r),
@@ -337,7 +367,8 @@ class NewEventScreen extends StatelessWidget {
                                 width: 177.w,
                                 // color: Colors.red,
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     GestureDetector(
@@ -376,13 +407,11 @@ class NewEventScreen extends StatelessWidget {
                             width: double.infinity,
                             height: 147.h,
                             decoration: BoxDecoration(
-                              color: Color(0xFFF7F9FB),
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(24.r),
-                                bottomRight: Radius.circular(24.r),
-                              )
-
-                            ),
+                                color: Color(0xFFF7F9FB),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(24.r),
+                                  bottomRight: Radius.circular(24.r),
+                                )),
                             // padding: EdgeInsets.all(16.h),
                             child: Center(
                               child: Text(

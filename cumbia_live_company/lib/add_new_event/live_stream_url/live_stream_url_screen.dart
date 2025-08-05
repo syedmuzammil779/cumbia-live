@@ -1,9 +1,12 @@
 import 'package:cumbia_live_company/add_new_event/events/events_screen.dart';
+import 'package:cumbia_live_company/controller/CreateLiveStreamUrlController.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../centered_view/ProductsScreen.dart';
-
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:uuid/uuid.dart';
 
 class UrlScreen extends StatefulWidget {
   const UrlScreen({super.key});
@@ -13,8 +16,11 @@ class UrlScreen extends StatefulWidget {
 }
 
 class _UrlScreen extends State<UrlScreen> {
+
+  final roomID = Uuid().v4().replaceAll('-', '').substring(0, 8);
   @override
   Widget build(BuildContext context) {
+    String liveStreamUrl = "https://cumbialive.com/livestream/$roomID";
     return Scaffold(
         backgroundColor: Colors.white,
         body: Container(
@@ -42,7 +48,7 @@ class _UrlScreen extends State<UrlScreen> {
                   height: 0.1.sh,
                 ),
                 Container(
-                  height: 104.h,
+                  height: 120.h,
                   // width: 1.0.sw,
                   // color: Colors.red,
                   child: SingleChildScrollView(
@@ -54,7 +60,7 @@ class _UrlScreen extends State<UrlScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -81,7 +87,7 @@ class _UrlScreen extends State<UrlScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -108,7 +114,7 @@ class _UrlScreen extends State<UrlScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -136,7 +142,7 @@ class _UrlScreen extends State<UrlScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -163,7 +169,7 @@ class _UrlScreen extends State<UrlScreen> {
                               ),
                             ),
                             Container(
-                              height: 104.h,
+                              height: 120.h,
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -214,7 +220,6 @@ class _UrlScreen extends State<UrlScreen> {
                       ),
                       Center(
                         child: Container(
-                          width: 450.w,
                           height: 70.h,
                           // color: Colors.red,
                           child: Row(
@@ -238,13 +243,12 @@ class _UrlScreen extends State<UrlScreen> {
                               SizedBox(
                                 width: 10.w,
                               ),
-                              Expanded(
-                                  child: Container(
-                                height: 52.h,
+                              Expanded(child: Container(
+                                padding: EdgeInsets.symmetric(vertical: 5, horizontal: 10),
                                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(31.17), color: Color(0xFF15BECE)),
                                 child: Center(
                                   child: Text(
-                                    "https://cumbialive.com",
+                                    liveStreamUrl,
                                     style: TextStyle(fontWeight: FontWeight.w400, fontSize: 22.sp, color: Colors.white),
                                   ),
                                 ),
@@ -288,6 +292,9 @@ class _UrlScreen extends State<UrlScreen> {
                           ElevatedButton(
                             onPressed: () {
                               // Navigator.of(context).push(MaterialPageRoute(builder: (context) => SlidingTimerScreen()));
+                              CreateLiveStreamUrlController createLiveStreamUrlController = Get.put(CreateLiveStreamUrlController());
+                              createLiveStreamUrlController.setStreamLink(liveStreamUrl);
+                              createLiveStreamUrlController.createEvent(context: context);
                               Navigator.of(context).push(
                                 PageRouteBuilder(
                                   pageBuilder: (context, animation, secondaryAnimation) => EventsScreen(),
@@ -319,4 +326,6 @@ class _UrlScreen extends State<UrlScreen> {
               ],
             )));
   }
+
+
 }

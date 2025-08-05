@@ -50,7 +50,6 @@ dependencies:
   dotted_border: ^2.0.0
   time_picker_spinner: ^1.0.2
   encrypt:
-
   #Stream Library
   zego_express_engine: ^3.21.0
 
@@ -63,11 +62,12 @@ dependencies:
   visibility_detector:
   #  video_player: ^2.7.0
   chewie:
-  file_picker: ^6.1.1
+  file_picker: ^10.2.0
   modal_bottom_sheet:
 
   flutter_animate:
   responsive_builder: ^0.7.0
+  get: ^4.7.2
   get_it: ^8.0.3
   connectivity_plus: ^6.1.4
   cached_network_image: ^3.2.3

@@ -4,6 +4,7 @@ import 'dart:html' as html;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cumbia_live_company/CallPage.dart';
 import 'package:cumbia_live_company/Models/Shopify/shopify_product_model.dart';
+import 'package:cumbia_live_company/add_new_event/events/events_screen.dart';
 import 'package:cumbia_live_company/add_new_event/newEvent.dart';
 import 'package:cumbia_live_company/theme/theme.dart';
 import 'package:cumbia_live_company/zego_config.dart';
@@ -15,6 +16,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animated_dialog_updated/flutter_animated_dialog.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/get_instance.dart';
 // import 'package:flutter_animated_dialog/flutter_animated_dialog.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -26,7 +29,9 @@ import 'Models/Constants.dart';
 import 'Models/Structs.dart';
 import 'package:file_picker/file_picker.dart';
 import 'add_new_event/EventsPageOld.dart';
+import 'add_new_event/live_stream_url/live_stream_page.dart';
 import 'common/color_constants.dart';
+import 'controller/CreateLiveStreamUrlController.dart';
 
 class HomeScreen extends StatefulWidget {
   HomeScreen({Key? key}) : super(key: key);
@@ -88,7 +93,8 @@ class _State extends State<HomeScreen>{
   final TextEditingController vinculationSecretID = TextEditingController();
 
   FirebaseAuth _auth = FirebaseAuth.instance;
-  FirebaseFirestore _db = FirebaseFirestore.instance;
+  // FirebaseFirestore _db = FirebaseFirestore.instance;
+  CreateLiveStreamUrlController createLiveStreamUrlController = Get.put(CreateLiveStreamUrlController());
 
   Users userInfo = Users(
       userUID: '',
@@ -132,7 +138,7 @@ class _State extends State<HomeScreen>{
   String version = 'Unknown';
 
   // // Apply AppID and AppSign from ZEGO
-  // final int appID = 1742640984;
+  final int appID = 1089943119;
   //
   // // Apply AppID and AppSign from ZEGO
   // final String appSign = 'a50d8be62818c3b2b8474be50db0aac534f07ce0d346d9dbd42192d8b909b428';
@@ -165,7 +171,7 @@ class _State extends State<HomeScreen>{
   }
 
   getSuscriptions() {
-    var ref = _db.collection('suscriptions').snapshots();
+    var ref = createLiveStreamUrlController.db.collection('suscriptions').snapshots();
 
     ref.listen((event) {
       if (event.docChanges.isEmpty) {
@@ -228,23 +234,23 @@ class _State extends State<HomeScreen>{
   }
 
   Future<void> createEngine() async {
-    /*await ZegoExpressEngine.createEngineWithProfile(ZegoEngineProfile(
+    await ZegoExpressEngine.createEngineWithProfile(ZegoEngineProfile(
       appID,
       ZegoScenario.Default,
       appSign: null,
       enablePlatformView: true,
-    ));*/
-    /*Map<String,dynamic> profile = {
-      'appID': appID,
-      'scenario': 'General',
-    };*/
+    ));
+    // Map<String,dynamic> profile = {
+    //   'appID': appID,
+    //   'scenario': 'General',
+    // };
 
-    print("** wk zego engine start");
-
-    ZegoEngineProfile profile = ZegoEngineProfile(ZegoConfig.instance.appID, ZegoConfig.instance.scenario,
-        enablePlatformView: true, appSign: kIsWeb ? null : ZegoConfig.instance.appSign);
-    ZegoExpressEngine.createEngineWithProfile(profile);
-    print("** wk zego engine success done");
+    // print("** wk zego engine start");
+    //
+    // ZegoEngineProfile profile = ZegoEngineProfile(ZegoConfig.instance.appID, ZegoConfig.instance.scenario,
+    //     enablePlatformView: true, appSign: kIsWeb ? null : ZegoConfig.instance.appSign);
+    // ZegoExpressEngine.createEngineWithProfile(profile);
+    // print("** wk zego engine success done");
   }
 
   //Get data
@@ -258,7 +264,7 @@ class _State extends State<HomeScreen>{
       return;
     }
 
-    var userSnapshot = _db.collection('users').doc(user.uid).snapshots();
+    var userSnapshot = createLiveStreamUrlController.db.collection('users').doc(user.uid).snapshots();
 
     userSnapshot.listen((userEvent) async {
       if (!userEvent.exists) {
@@ -272,7 +278,7 @@ class _State extends State<HomeScreen>{
 
       if (userInfo.companiesID?.isNotEmpty ?? false) {
         for (var companyID in userInfo.companiesID!) {
-          var companySnapshot = _db.collection('companies').doc(companyID).snapshots();
+          var companySnapshot = createLiveStreamUrlController.db.collection('companies').doc(companyID).snapshots();
 
           companySnapshot.listen((event) {
 
@@ -283,6 +289,7 @@ class _State extends State<HomeScreen>{
 
             setState(() {
               this.userInfo = userInfo;
+              createLiveStreamUrlController.setUserInfo(userInfo);
 
               /// Uncomment these lines if needed
               // if (userInfo.sessionID?.isNotEmpty ?? false) {
@@ -293,7 +300,7 @@ class _State extends State<HomeScreen>{
               //   getSubscription(userInfo.subscriptionID!);
               // }
               this.companyInfo = companies.first;
-
+              createLiveStreamUrlController.setCompanyInfo(companies.first);
               if ((companyInfo.consumerKey?.isNotEmpty ?? false) && (companyInfo.consumerSecret?.isNotEmpty ?? false)) {
                 validateStore(setState);
               }
@@ -318,7 +325,6 @@ class _State extends State<HomeScreen>{
   }
 
 
-  List<ShopifyProductModel> productsSelected = [];
 
   String addFiveSeconds(String inputTime) {
     // Split the input string into minutes and seconds
@@ -4278,7 +4284,7 @@ class _State extends State<HomeScreen>{
   }
 
   Future<bool> verifyExistingAlias(String alias) async {
-    var ref = await _db
+    var ref = await createLiveStreamUrlController.db
         .collection('companies')
         .where('alias', isEqualTo: alias)
         .get();
@@ -4294,15 +4300,16 @@ class _State extends State<HomeScreen>{
   }
 
   validatePassToStream(screenSizeHeight, screenSizeWidth, BuildContext context) async {
-    productsSelected.clear();
+    createLiveStreamUrlController.productsSelected.clear();
     print(":companyInfo.webSite--- ${companyInfo.webSite} storePlatform- ${companyInfo.storePlatform}");
     if (companyInfo.webSite == '' || companyInfo.storePlatform == '') {
       dialogToStart(screenSizeHeight, screenSizeWidth);
     } else {
       // dialogToStartProducts(screenSizeHeight, screenSizeWidth, context);
+
       Navigator.of(context).push(
         PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => NewEventScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => EventsScreen(),
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
@@ -4836,8 +4843,8 @@ class _State extends State<HomeScreen>{
   }
 
   saveNewStreamData() async {
-    /*print('Total de productos seleccionados: ${productsSelected.length}');
-    productsSelected.forEach((element) {
+    /*print('Total de productos seleccionados: ${createLiveStreamUrlController.productsSelected.length}');
+    createLiveStreamUrlController.productsSelected.forEach((element) {
       if (companyInfo.storePlatform == 'WooCommerce') {
         WooProduct prod = element;
         print('Está seleccionado el producto: ${prod.toJson()}');
@@ -4858,14 +4865,14 @@ class _State extends State<HomeScreen>{
         status: 'En espera',
         ecommercePlatform: companyInfo.storePlatform);
 
-    var refCompany = _db.collection('streams').doc(streamID);
-    // await _db.collection('streams').doc(widget.stream?.streamID).update({'status': status});
+    var refCompany = createLiveStreamUrlController.db.collection('streams').doc(streamID);
+    // await createLiveStreamUrlController.db.collection('streams').doc(widget.stream?.streamID).update({'status': status});
     // final copyUrl = html.window.location.href + "" + streamId;
 
 
 
     refCompany
-        .set(saveStream.createStream(productsSelected))
+        .set(saveStream.createStream(createLiveStreamUrlController.productsSelected))
         .whenComplete(() async {
           final copyUrl = html.window.location.href + "#/liveStream/" + "${saveStream.streamID ?? ''}";
         print("** wk url: $copyUrl");
@@ -5116,7 +5123,7 @@ class _State extends State<HomeScreen>{
   }
 
   saveChangesInAcceptancePrivacyPolicy(bool isAccepted) async {
-    var refCompany = _db.collection('companies').doc(companyInfo.companyID);
+    var refCompany = createLiveStreamUrlController.db.collection('companies').doc(companyInfo.companyID);
 
     refCompany
         .update({
@@ -5675,16 +5682,16 @@ class _State extends State<HomeScreen>{
     return Container(
       child: GestureDetector(
         onTap: () {
-          if (productsSelected.contains(products[index])) {
+          if (createLiveStreamUrlController.productsSelected.contains(products[index])) {
             var support =
-            productsSelected.indexOf(products[index]);
+            createLiveStreamUrlController.productsSelected.indexOf(products[index]);
             modalState(() {
-              productsSelected.removeAt(support);
+              createLiveStreamUrlController.productsSelected.removeAt(support);
             });
           } else {
             modalState(() {
               products[index].from=null;
-              productsSelected.add(products[index]);
+              createLiveStreamUrlController.productsSelected.add(products[index]);
             });
           }
         },
@@ -5712,7 +5719,7 @@ class _State extends State<HomeScreen>{
                     ),
                   ),
                   Visibility(
-                    visible: productsSelected.contains(products[index]),
+                    visible: createLiveStreamUrlController.productsSelected.contains(products[index]),
                     child: Icon(
                       Icons.check_circle,
                       color: Theme.of(context).primaryColor,
@@ -5796,12 +5803,12 @@ class _State extends State<HomeScreen>{
                   ),
                   child: Container(
                     decoration: BoxDecoration(
-                      image: productsSelected[index].images==""?
+                      image: createLiveStreamUrlController.productsSelected[index].images==""?
                       DecorationImage(
                         image: AssetImage('assets/img/photo_1.png'),
                         fit: BoxFit.cover,
                       ):DecorationImage(
-                        image: NetworkImage(productsSelected[index].images??""),
+                        image: NetworkImage(createLiveStreamUrlController.productsSelected[index].images??""),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -5814,7 +5821,7 @@ class _State extends State<HomeScreen>{
             height: screenSizeHeight * 0.015,
           ),
           Text(
-            '${productsSelected[index].title}',
+            '${createLiveStreamUrlController.productsSelected[index].title}',
             style: TextStyle(
               color: Theme.of(context).secondaryHeaderColor,
               fontStyle: FontStyle.normal,
@@ -5826,7 +5833,7 @@ class _State extends State<HomeScreen>{
             textAlign: TextAlign.left,
           ),
           Text(
-            '${productsSelected[index].productType??""}',
+            '${createLiveStreamUrlController.productsSelected[index].productType??""}',
             style: TextStyle(
               color: Theme.of(context).secondaryHeaderColor,
               fontStyle: FontStyle.normal,
@@ -5859,8 +5866,8 @@ class _State extends State<HomeScreen>{
                         if (_compareTimes(enteredTime, time))
                         {
                           modalState(() {
-                            productsSelected[index].from = enteredTime;
-                            productsSelected[index].to=addFiveSeconds(enteredTime);
+                            createLiveStreamUrlController.productsSelected[index].from = enteredTime;
+                            createLiveStreamUrlController.productsSelected[index].to=addFiveSeconds(enteredTime);
                           });
                         }
                         else
@@ -5913,8 +5920,8 @@ class _State extends State<HomeScreen>{
                   //
                   //               if (_compareTimes(enteredTime, time)) {
                   //                 modalState(() {
-                  //                   productsSelected[index].from = enteredTime;
-                  //                   productsSelected[index].to=addFiveSeconds(enteredTime);
+                  //                   createLiveStreamUrlController.productsSelected[index].from = enteredTime;
+                  //                   createLiveStreamUrlController.productsSelected[index].to=addFiveSeconds(enteredTime);
                   //                 });
                   //                 Navigator.of(context).pop();
                   //               } else {
@@ -5965,7 +5972,7 @@ class _State extends State<HomeScreen>{
                   //   },
                   // );
                 },
-                child: Text(productsSelected[index].from == null ? 'From' : productsSelected[index].from),
+                child: Text(createLiveStreamUrlController.productsSelected[index].from == null ? 'From' : createLiveStreamUrlController.productsSelected[index].from),
               ),
             ],
           ),
@@ -6098,7 +6105,7 @@ class _State extends State<HomeScreen>{
   Future<void> saveStoreIDS(modalState) async {
     dialogoCarga('Actualizando información...');
 
-    var refCompany = _db.collection('companies').doc(companyInfo.companyID);
+    var refCompany = createLiveStreamUrlController.db.collection('companies').doc(companyInfo.companyID);
 
     refCompany.update(companyInfo.storePlatform == 'WooCommerce' ? companyInfo.toUpdateStore() : companyInfo.toUpdateShopifyStore()).whenComplete(() async {
       Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -6142,9 +6149,8 @@ class _State extends State<HomeScreen>{
 
     if (companyInfo.storePlatform == 'WooCommerce') {
       await getWooCommerceProducts(modalState);
-
-    } else if (companyInfo.storePlatform == 'Shopify') {
-      await getShopifyProducts(modalState);
+    } else {
+      await getShopifyProducts();
     }
     setState(() {
       homeLoading=false;
@@ -6208,18 +6214,70 @@ class _State extends State<HomeScreen>{
 
 
   //Get  ShopifyProducts
-  Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
+  Future<void> getShopifyProducts() async {
+    dialogoCarga('Actualizando información...');
+
+    String baseUrl = "https://www.diamondeseller.com";
+    String token = "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";
+    String endpoint = "/admin/api/2023-01/products.json";
+
+    Uri getUrl = Uri.parse('$baseUrl$endpoint');
+
+    try {
+      print("getShopifyProducts ---- Calling GET $getUrl");
+
+      final response = await http.get(
+        getUrl,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shopify-Access-Token": token,
+        },
+      );
+
+      print("getShopifyProducts ---- Response: ${response.statusCode}");
+      print("getShopifyProducts ---- Response body: ${response.body}");
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        List shopProducts = data['products'];
+
+        for (var productData in shopProducts) {
+          var product = ShopifyProductModel.fromJson(productData);
+          allProducts.ecommercePlatform = 'Shopify';
+
+          setState(() {
+            final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id);
+            if (index != null && index >= 0) {
+              allProducts.shopProducts?[index] = product;
+            } else {
+              allProducts.shopProducts?.add(product);
+            }
+          });
+        }
+      } else {
+        print("getShopifyProducts ---- Shopify API Error: ${response.statusCode} - ${response.body}");
+      }
+    } catch (e) {
+      print("getShopifyProducts ---- Catch error: $e");
+    } finally {
+      Navigator.of(context, rootNavigator: true).pop('dialog');
+    }
+  }
+
+
+  /*Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
 
     dialogoCarga('Actualizando información...');
-    String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
+    // String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
+    String url = "${companyInfo.webSite}";
     String token = companyInfo.accessToken ?? "";
 
     Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
 
     try {
-      print("Call post $postURL");
+      print("talha---Call post $postURL");
       final response = await http.post(postURL);
-      log("Response"+response.body);
+      print("talha---Response"+response.body);
 
       if (response.body != 'error') {
         var data = jsonDecode(response.body);
@@ -6245,7 +6303,7 @@ class _State extends State<HomeScreen>{
     }finally{
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
-  }
+  }*/
 
 
   dialogMenu(screenSizeHeight, screenSizeWidth) {
@@ -7819,7 +7877,7 @@ class _State extends State<HomeScreen>{
       'createdAt':FieldValue.serverTimestamp(),
      */
 
-    var productFavorite = _db.collection('users').doc(userInfo.userUID);
+    var productFavorite = createLiveStreamUrlController.db.collection('users').doc(userInfo.userUID);
 
     productFavorite.update({
       'sessionID': sessionID,
@@ -7893,7 +7951,7 @@ class _State extends State<HomeScreen>{
 
 
   saveCustomerStripe(String customerID, String subscripID) {
-    var productFavorite = _db.collection('users').doc(userInfo.userUID);
+    var productFavorite = createLiveStreamUrlController.db.collection('users').doc(userInfo.userUID);
 
     if (userInfo.customerStripe == '' || userInfo.subscriptionID == '') {
       productFavorite.update({
@@ -7913,7 +7971,7 @@ class _State extends State<HomeScreen>{
   }
 
   updateSubsStatus(String status) {
-    var productFavorite = _db.collection('users').doc(userInfo.userUID);
+    var productFavorite = createLiveStreamUrlController.db.collection('users').doc(userInfo.userUID);
 
     if (status != 'active') {
       productFavorite.update({
@@ -8180,7 +8238,7 @@ class _State extends State<HomeScreen>{
       transactionData) async {
     var transactionID = transactionData['data']['id'];
 
-    var ref = _db.collection('purchases').doc(transactionID);
+    var ref = createLiveStreamUrlController.db.collection('purchases').doc(transactionID);
 
     ref.set({
       'createdBy': userInfo.userUID,
@@ -8191,7 +8249,7 @@ class _State extends State<HomeScreen>{
     }).whenComplete(() async {
       print('Se guardó con éxito compra de suscription');
 
-      var ref = _db.collection('companies').doc(companyInfo.companyID);
+      var ref = createLiveStreamUrlController.db.collection('companies').doc(companyInfo.companyID);
 
       ref.update(selection.toMap('APPROVED')).whenComplete(() async {
         print('Se actualizó con éxito compra de suscription en compañía');
@@ -9467,7 +9525,7 @@ class _State extends State<HomeScreen>{
 
     Users userData = userInfo;
 
-    var ref = _db.collection('users').doc(userData.userUID);
+    var ref = createLiveStreamUrlController.db.collection('users').doc(userData.userUID);
 
     ref.update(userData.toRegister()).whenComplete(() async {
       Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -10585,7 +10643,7 @@ class _State extends State<HomeScreen>{
 
     CompanyData companyData = companyInfo;
 
-    var refCompany = _db.collection('companies').doc(companyData.companyID);
+    var refCompany = createLiveStreamUrlController.db.collection('companies').doc(companyData.companyID);
 
     refCompany.update(companyData.toRegister()).whenComplete(() async {
       Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -11224,7 +11282,7 @@ class _State extends State<HomeScreen>{
 
     CompanyData companyData = companyInfo;
 
-    var refCompany = _db.collection('companies').doc(companyData.companyID);
+    var refCompany = createLiveStreamUrlController.db.collection('companies').doc(companyData.companyID);
 
     refCompany.update(companyData.toCreateContactInfo()).whenComplete(() async {
       Navigator.of(context, rootNavigator: true).pop('dialog');
@@ -11454,7 +11512,7 @@ class _State extends State<HomeScreen>{
     var products = [];
     bool loading=false;
     _videoFileName="";
-    productsSelected.clear();
+    createLiveStreamUrlController.productsSelected.clear();
     Video_url_controller.text="";
     String _formatDuration(int durationInSeconds) {
       int minutes = (durationInSeconds / 60).truncate();
@@ -11555,7 +11613,7 @@ class _State extends State<HomeScreen>{
                         ),
                         GestureDetector(
                             onTap: (){
-                              if(productsSelected.isEmpty){
+                              if(createLiveStreamUrlController.productsSelected.isEmpty){
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                       content: Text('Selecione o product!')),
@@ -11579,7 +11637,7 @@ class _State extends State<HomeScreen>{
                         ),
                         GestureDetector(
                             onTap: (){
-                              productsSelected.forEach((element) {
+                              createLiveStreamUrlController.productsSelected.forEach((element) {
                                 if(element.from==null){
                                   print(element.price);
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -11836,7 +11894,7 @@ class _State extends State<HomeScreen>{
                               Expanded(
                                 child: GestureDetector(
                                   onTap: ()async {
-                                    if (currentStepper == 1 && productsSelected.isEmpty) {
+                                    if (currentStepper == 1 && createLiveStreamUrlController.productsSelected.isEmpty) {
                                       showDialog(
                                         context: context,
                                         builder: (BuildContext context) {
@@ -11892,7 +11950,7 @@ class _State extends State<HomeScreen>{
                       height: screenSizeHeight * 0.589,
                       child: Column(
                         children: [
-                          productsSelected.length!=0?Expanded(
+                          createLiveStreamUrlController.productsSelected.length!=0?Expanded(
                             child: GridView.builder(
                               padding: EdgeInsets.only(top: 10),
                               physics: NeverScrollableScrollPhysics(),
@@ -11903,7 +11961,7 @@ class _State extends State<HomeScreen>{
                                 mainAxisSpacing: screenSizeHeight * 0.1,
                                 crossAxisCount: 5,
                               ),
-                              itemCount: productsSelected.length == 0 ? 1 : productsSelected.length,
+                              itemCount: createLiveStreamUrlController.productsSelected.length == 0 ? 1 : createLiveStreamUrlController.productsSelected.length,
                               itemBuilder: (context, int index) => cellsProductsWithTime(index, screenSizeWidth, screenSizeHeight, modalState),
                             ),
                           ):SizedBox(),
@@ -11932,7 +11990,7 @@ class _State extends State<HomeScreen>{
                               Expanded(
                                 child: GestureDetector(
                                   onTap: ()async {
-                                    productsSelected.forEach((element) {
+                                    createLiveStreamUrlController.productsSelected.forEach((element) {
                                       if(element.from==null){
                                         print(element.price);
                                         ScaffoldMessenger.of(context).showSnackBar(
@@ -11963,7 +12021,7 @@ class _State extends State<HomeScreen>{
                                     //   );
                                     //   setState(() {});
                                     // }else
-                                    // if (currentStepper == 1 && productsSelected.isEmpty) {
+                                    // if (currentStepper == 1 && createLiveStreamUrlController.productsSelected.isEmpty) {
                                     //   showDialog(
                                     //     context: context,
                                     //     builder: (BuildContext context) {
@@ -11991,7 +12049,7 @@ class _State extends State<HomeScreen>{
                                     User? user = FirebaseAuth.instance.currentUser;
                                     var docRef = await FirebaseFirestore.instance.collection('tbl_uploaded_videos').doc();
                                     // Convert the List<dynamic> to a List<Map<String, dynamic>>
-                                    List<Map<String, dynamic>> productsData = productsSelected.map<Map<String, dynamic>>((product) => {
+                                    List<Map<String, dynamic>> productsData = createLiveStreamUrlController.productsSelected.map<Map<String, dynamic>>((product) => {
                                       'id': product.id,
                                       'title': product.title,
                                       'variant_id': product.variantId,
