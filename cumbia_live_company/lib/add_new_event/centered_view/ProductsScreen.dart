@@ -410,38 +410,28 @@ class _ProductsScreen extends State<ProductsScreen> {
 
 
   //Get  ShopifyProducts
-  Future<void> getShopifyProducts() async {
+  Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
+
     dialogoCarga('Actualizando información...');
+    String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
+    String token = companyInfo.accessToken ?? "";
 
-    String baseUrl = "https://www.diamondeseller.com";
-    String token = "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";
-    String endpoint = "/admin/api/2023-01/products.json";
-
-    Uri getUrl = Uri.parse('$baseUrl$endpoint');
+    Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
 
     try {
-      print("getShopifyProducts ---- Calling GET $getUrl");
+      print("Call post $postURL");
+      final response = await http.post(postURL);
+      log("Response"+response.body);
 
-      final response = await http.post(
-        getUrl,
-        headers: {
-          "Content-Type": "application/json",
-          "X-Shopify-Access-Token": token,
-        },
-      );
-
-      print("getShopifyProducts ---- Response: ${response.statusCode}");
-      print("Response body: ${response.body}");
-
-      if (response.statusCode == 200) {
+      if (response.body != 'error') {
         var data = jsonDecode(response.body);
-        List shopProducts = data['products'];
+        List shopProducts = data['data']['products'];
 
         for (var productData in shopProducts) {
           var product = ShopifyProductModel.fromJson(productData);
           allProducts.ecommercePlatform = 'Shopify';
 
-          setState(() {
+          modalState(() {
             final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id);
             if (index != null && index >= 0) {
               allProducts.shopProducts?[index] = product;
@@ -449,13 +439,12 @@ class _ProductsScreen extends State<ProductsScreen> {
               allProducts.shopProducts?.add(product);
             }
           });
+          modalState(() { });
         }
-      } else {
-        print("Shopify API Error: ${response.statusCode} - ${response.body}");
       }
     } catch (e) {
-      print("getShopifyProducts ---- Catch error: $e");
-    } finally {
+      // Handle error
+    }finally{
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
@@ -650,11 +639,11 @@ class _ProductsScreen extends State<ProductsScreen> {
   }
 
 
-  Future<void> validateStore() async{
+  Future<void> validateStore(modalState) async{
     if (companyInfo.storePlatform == 'WooCommerce') {
       await getWooCommerceProducts();
     } else if (companyInfo.storePlatform == 'Shopify') {
-      await getShopifyProducts();
+      await getShopifyProducts(modalState);
     }
   }
 
@@ -697,7 +686,7 @@ class _ProductsScreen extends State<ProductsScreen> {
               print("companyInfo.consumerKey---- ${companyInfo.consumerKey}");
               print("companyInfo.consumerSecret---- ${companyInfo.consumerSecret}");
               if ((companyInfo.consumerKey?.isNotEmpty ?? false) && (companyInfo.consumerSecret?.isNotEmpty ?? false)) {
-                validateStore();
+                validateStore(setState);
               }
             });
           });
