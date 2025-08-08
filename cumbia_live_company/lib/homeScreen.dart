@@ -6212,46 +6212,106 @@ class _State extends State<HomeScreen>{
     }
   }
 
-
-  //Get  ShopifyProducts
   Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
-
     dialogoCarga('Actualizando información...');
+
     String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
     String token = companyInfo.accessToken ?? "";
 
-    Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
-
     try {
-      print("Call post $postURL");
-      final response = await http.post(postURL);
-      log("Response"+response.body);
+      final Uri apiUrl = Uri.parse(
+        "https://waseem-proxy-api-production.up.railway.app/fetch-store-data",
+      );
 
-      if (response.body != 'error') {
+      print("Calling proxy: $apiUrl");
+
+      final response = await http.post(
+        apiUrl,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "url": url,
+          "accessToken": token,
+        }),
+      );
+
+      log("Response: ${response.body}");
+
+      if (response.statusCode == 200 && response.body != 'error') {
         var data = jsonDecode(response.body);
-        List shopProducts = data['data']['products'];
+        List shopProducts = data['products'] ?? [];
 
-        for (var productData in shopProducts) {
-          var product = ShopifyProductModel.fromJson(productData);
-          allProducts.ecommercePlatform = 'Shopify';
+        if (shopProducts.isNotEmpty) {
+          // Ensure non-null list globally
+          allProducts.shopProducts ??= [];
+
+          for (var productData in shopProducts) {
+            var product = ShopifyProductModel.fromJson(productData);
+
+            final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id) ?? -1;
+            if (index >= 0) {
+              allProducts.shopProducts![index] = product; // Update existing
+            } else {
+              allProducts.shopProducts?.add(product);     // Add new
+            }
+          }
 
           modalState(() {
-            final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id);
-            if (index != null && index >= 0) {
-              allProducts.shopProducts?[index] = product;
-            } else {
-              allProducts.shopProducts?.add(product);
-            }
+            allProducts.ecommercePlatform = 'Shopify';
+            allProducts.shopProducts = [];
           });
-          modalState(() { });
+        } else {
+          print("No products found in Shopify response");
         }
+      } else {
+        print("Error: ${response.statusCode}");
       }
     } catch (e) {
-      // Handle error
-    }finally{
+      print("Error fetching Shopify products: $e");
+    } finally {
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
+
+
+  //Get  ShopifyProducts
+  // Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
+  //
+  //   dialogoCarga('Actualizando información...');
+  //   String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
+  //   String token = companyInfo.accessToken ?? "";
+  //
+  //   Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
+  //
+  //   try {
+  //     print("Call post $postURL");
+  //     final response = await http.post(postURL);
+  //     log("Response"+response.body);
+  //
+  //     if (response.body != 'error') {
+  //       var data = jsonDecode(response.body);
+  //       List shopProducts = data['data']['products'];
+  //
+  //       for (var productData in shopProducts) {
+  //         var product = ShopifyProductModel.fromJson(productData);
+  //         allProducts.ecommercePlatform = 'Shopify';
+  //
+  //         modalState(() {
+  //           final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id);
+  //           if (index != null && index >= 0) {
+  //             allProducts.shopProducts?[index] = product;
+  //           } else {
+  //             allProducts.shopProducts?.add(product);
+  //           }
+  //         });
+  //         modalState(() { });
+  //       }
+  //     }
+  //   } catch (e) {
+  //     // Handle error
+  //   }finally{
+  //     Navigator.of(context, rootNavigator: true).pop('dialog');
+  //   }
+  // }
 
 
   /*Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
