@@ -723,8 +723,31 @@ class _EventsScreenState extends State<EventsScreen> {
                                                           GestureDetector(
                                                             onTap: (){
                                                               Clipboard.setData(ClipboardData(text: "${events[index].streamLink}"));
-                                                              debugPrint('Copy URL for ${event.title}');
-                                                              showToast(context, 'URL copied to clipboard');
+                                                              final overlay = Overlay.of(context);
+                                                              final overlayEntry = OverlayEntry(
+                                                                builder: (context) => Positioned(
+                                                                  top: MediaQuery.of(context).size.height * 0.4, // adjust position
+                                                                  left: MediaQuery.of(context).size.width * 0.5 - 50,
+                                                                  child: Material(
+                                                                    color: Colors.transparent,
+                                                                    child: Container(
+                                                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.black87,
+                                                                        borderRadius: BorderRadius.circular(8),
+                                                                      ),
+                                                                      child: const Text(
+                                                                        "Copied!",
+                                                                        style: TextStyle(color: Colors.white, fontSize: 14),
+                                                                      ),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              );
+                                                              overlay.insert(overlayEntry);
+                                                              Future.delayed(const Duration(seconds: 2), () {
+                                                                overlayEntry.remove();
+                                                              });
                                                             },
                                                             child: Image.asset(
                                                                 'assets/img/document.png',

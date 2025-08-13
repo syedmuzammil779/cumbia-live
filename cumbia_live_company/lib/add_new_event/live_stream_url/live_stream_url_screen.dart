@@ -7,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:html' as html;
 
 class UrlScreen extends StatefulWidget {
   const UrlScreen({super.key});
@@ -20,7 +21,9 @@ class _UrlScreen extends State<UrlScreen> {
   final roomID = Uuid().v4().replaceAll('-', '').substring(0, 8);
   @override
   Widget build(BuildContext context) {
-    String liveStreamUrl = "https://cumbialive.com/livestream/$roomID";
+    // String liveStreamUrl = "https://cumbialive.com/livestream/$roomID";
+    final String baseUrl = html.window.location.origin;
+    final String liveStreamUrl = "$baseUrl/livestream/$roomID";
     return Scaffold(
         backgroundColor: Colors.white,
         body: Container(
@@ -225,7 +228,34 @@ class _UrlScreen extends State<UrlScreen> {
                           child: Row(
                             children: [
                               GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Clipboard.setData(ClipboardData(text: liveStreamUrl));
+                                  final overlay = Overlay.of(context);
+                                  final overlayEntry = OverlayEntry(
+                                    builder: (context) => Positioned(
+                                      top: MediaQuery.of(context).size.height * 0.4, // adjust position
+                                      left: MediaQuery.of(context).size.width * 0.5 - 50,
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black87,
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: const Text(
+                                            "Copied!",
+                                            style: TextStyle(color: Colors.white, fontSize: 14),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                  overlay.insert(overlayEntry);
+                                  Future.delayed(const Duration(seconds: 2), () {
+                                    overlayEntry.remove();
+                                  });
+                                },
                                 child: Container(
                                   height: 62.h,
                                   width: 62.w,

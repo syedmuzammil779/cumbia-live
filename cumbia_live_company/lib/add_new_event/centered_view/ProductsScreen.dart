@@ -32,7 +32,6 @@ class ProductsScreen extends StatefulWidget {
 }
 
 class _ProductsScreen extends State<ProductsScreen> {
-  var products = [];
   bool uploadStatus = false;
   GeneralProductData allProducts = GeneralProductData( ecommercePlatform: '', wooProducts: [], shopProducts: []);
   FirebaseFirestore _db = FirebaseFirestore.instance;
@@ -410,65 +409,126 @@ class _ProductsScreen extends State<ProductsScreen> {
 
 
   //Get  ShopifyProducts
-  Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
+  // Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
+  //
+  //   dialogoCarga('Actualizando información...');
+  //   String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
+  //   String token = companyInfo.accessToken ?? "";
+  //
+  //   Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
+  //
+  //   try {
+  //     print("Call post $postURL");
+  //     final response = await http.post(postURL);
+  //     log("Response"+response.body);
+  //
+  //     if (response.body != 'error') {
+  //       var data = jsonDecode(response.body);
+  //       List shopProducts = data['data']['products'];
+  //
+  //       for (var productData in shopProducts) {
+  //         var product = ShopifyProductModel.fromJson(productData);
+  //         allProducts.ecommercePlatform = 'Shopify';
+  //
+  //         modalState(() {
+  //           final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id);
+  //           if (index != null && index >= 0) {
+  //             allProducts.shopProducts?[index] = product;
+  //           } else {
+  //             allProducts.shopProducts?.add(product);
+  //           }
+  //         });
+  //         modalState(() { });
+  //       }
+  //     }
+  //   } catch (e) {
+  //     // Handle error
+  //   }finally{
+  //     Navigator.of(context, rootNavigator: true).pop('dialog');
+  //   }
+  // }
 
+  Future<void> getShopifyProducts(void Function(void Function()) modalState) async {
     dialogoCarga('Actualizando información...');
+
     String url = "${companyInfo.webSite}/admin/api/2023-01/products.json";
     String token = companyInfo.accessToken ?? "";
 
-    Uri postURL = Uri.parse('$STRIPE_URL?endpoint=$url&token=$token');
-
     try {
-      print("Call post $postURL");
-      final response = await http.post(postURL);
-      log("Response"+response.body);
+      final Uri apiUrl = Uri.parse(
+        "https://waseem-proxy-api-production.up.railway.app/fetch-store-data",
+      );
 
-      if (response.body != 'error') {
+      print("talha----Calling proxy: $apiUrl");
+
+      final response = await http.post(
+        apiUrl,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          "url": url,
+          "accessToken": token,
+        }),
+      );
+
+      print("talha----Response: ${response.body}");
+
+      if (response.statusCode == 200 && response.body != 'error') {
         var data = jsonDecode(response.body);
-        List shopProducts = data['data']['products'];
+        List shopProducts = data['products'] ?? [];
 
-        for (var productData in shopProducts) {
-          var product = ShopifyProductModel.fromJson(productData);
-          allProducts.ecommercePlatform = 'Shopify';
+        if (shopProducts.isNotEmpty) {
+          // Ensure non-null list globally
+          allProducts.shopProducts ??= [];
+
+          for (var productData in shopProducts) {
+            var product = ShopifyProductModel.fromJson(productData);
+
+            final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id) ?? -1;
+            if (index >= 0) {
+              allProducts.shopProducts![index] = product; // Update existing
+            } else {
+              allProducts.shopProducts?.add(product);     // Add new
+            }
+          }
 
           modalState(() {
-            final index = allProducts.shopProducts?.indexWhere((element) => element.id == product.id);
-            if (index != null && index >= 0) {
-              allProducts.shopProducts?[index] = product;
-            } else {
-              allProducts.shopProducts?.add(product);
-            }
+            allProducts.ecommercePlatform = 'Shopify';
+            // allProducts.shopProducts = [];
           });
-          modalState(() { });
+        } else {
+          print("talha----No products found in Shopify response");
         }
+      } else {
+        print("talha----Error: ${response.statusCode}");
       }
     } catch (e) {
-      // Handle error
-    }finally{
+      print("talha----Error fetching Shopify products: $e");
+    } finally {
       Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
 
+  Widget productShowWidget(int index, double screenSizeWidth, double screenSizeHeight) {
+    List<ShopifyProductModel> products = allProducts.shopProducts ?? [];
+    print("shopProducts----- ${products.length}");
 
-  Widget productShowWidget(index, screenSizeWidth, screenSizeHeight) {
-    // List<ShopifyProductModel>  products = allProducts.shopProducts??[];
-    List<ShopifyProduct> products = hardcodedProducts;
     return Container(
       width: screenSizeWidth * 0.7,
-      padding: EdgeInsets.all(screenSizeHeight * 0.03),
+      margin: EdgeInsets.zero, // no extra space
+      padding: EdgeInsets.zero, // no extra space
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(screenSizeHeight * 0.02),
       ),
       child: GestureDetector(
         onTap: () {
-          if (createLiveStreamUrlController.shopifyProductSelected.contains(products[index])) {
-            var support = createLiveStreamUrlController.shopifyProductSelected.indexOf(products[index]);
+          if (createLiveStreamUrlController.productsSelected.contains(products[index])) {
+            var support = createLiveStreamUrlController.productsSelected.indexOf(products[index]);
             setState(() {
-              createLiveStreamUrlController.shopifyProductSelected.removeAt(support);
+              createLiveStreamUrlController.productsSelected.removeAt(support);
             });
           } else {
             setState(() {
-              createLiveStreamUrlController.shopifyProductSelected.add(products[index]);
+              createLiveStreamUrlController.productsSelected.add(products[index]);
             });
           }
           createLiveStreamUrlController.update();
@@ -476,25 +536,26 @@ class _ProductsScreen extends State<ProductsScreen> {
         behavior: HitTestBehavior.opaque,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min, // prevent column from stretching vertically
           children: [
             Stack(
               alignment: Alignment.topRight,
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(20),
-                      topLeft: Radius.circular(20)),
-                  child: Container(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                  ),
+                  child: SizedBox(
                     height: 100,
-                    decoration: BoxDecoration(
-                      image: products[index].imageUrl == ''?DecorationImage(image:AssetImage('assets/img/photo_1.png'), fit: BoxFit.cover):
-                      DecorationImage(image:NetworkImage(products[index].imageUrl??""), fit: BoxFit.cover),
-                    ),
+                    width: double.infinity,
+                    child: products[index].image?.src == ''
+                        ? Image.asset('assets/img/photo_1.png', fit: BoxFit.cover)
+                        : Image.network(products[index].image?.src ?? "", fit: BoxFit.cover),
                   ),
                 ),
                 Visibility(
-                  visible: createLiveStreamUrlController.shopifyProductSelected.contains(products[index]),
+                  visible: createLiveStreamUrlController.productsSelected.contains(products[index]),
                   child: Icon(
                     Icons.check_circle,
                     color: Theme.of(context).primaryColor,
@@ -505,38 +566,34 @@ class _ProductsScreen extends State<ProductsScreen> {
             Text(
               '${products[index].title}',
               style: TextStyle(
-                  color: Colors.red,
-                  fontStyle: FontStyle.normal,
-                  fontFamily: 'Gotham',
-                  decoration: TextDecoration.none,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w400),
+                color: Colors.red,
+                fontFamily: 'Gotham',
+                decoration: TextDecoration.none,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.left,
             ),
             Text(
-              // '${products[index].productType??""}',
               'Shopify',
               style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor,
-                  fontStyle: FontStyle.normal,
-                  fontFamily: 'Gotham',
-                  decoration: TextDecoration.none,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w300),
-              textAlign: TextAlign.center,
+                color: Theme.of(context).secondaryHeaderColor,
+                fontFamily: 'Gotham',
+                decoration: TextDecoration.none,
+                fontSize: 18,
+                fontWeight: FontWeight.w300,
+              ),
             ),
             Text(
               '\$${products[index].price}',
               style: TextStyle(
-                  color: Theme.of(context).secondaryHeaderColor,
-                  fontStyle: FontStyle.normal,
-                  fontFamily: 'Gotham',
-                  decoration: TextDecoration.none,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w400),
-              textAlign: TextAlign.center,
+                color: Theme.of(context).secondaryHeaderColor,
+                fontFamily: 'Gotham',
+                decoration: TextDecoration.none,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ],
         ),
@@ -586,6 +643,7 @@ class _ProductsScreen extends State<ProductsScreen> {
   }
 
   Widget showProductsView() {
+    List<ShopifyProductModel>  products = allProducts.shopProducts??[];
     var screenSizeHeight = MediaQuery.of(context).size.height;
     var screenSizeWidth = MediaQuery.of(context).size.width;
     return Container(
@@ -614,25 +672,25 @@ class _ProductsScreen extends State<ProductsScreen> {
               height: MediaQuery.of(context).size.height * 0.03,
             ),
             Visibility(
-              visible: hardcodedProducts.length == 0 ? false : true,
+              visible: products.length == 0 ? false : true,
               child: GridView.builder(
                 padding: EdgeInsets.only(right: 100, left: 100),
                 physics: ScrollPhysics(),
                 shrinkWrap: true,
                 gridDelegate:
                 SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisSpacing: 10,
-                  mainAxisSpacing: 10,
-                  childAspectRatio: 0.7,
+                  crossAxisSpacing: 30,
+                  mainAxisSpacing: 30,
+                  childAspectRatio: 1.2,
                   crossAxisCount: 4,
                 ),
-                itemCount: hardcodedProducts.length == 0 ? 1 : hardcodedProducts.length,
+                itemCount: products.length == 0 ? 1 : products.length,
                 itemBuilder: (context, int index) =>
                     productShowWidget(index, MediaQuery.of(context).size.width, MediaQuery.of(context).size.height),
               ),
             ),
             Visibility(
-                visible: hardcodedProducts.length == 0 ? true : false,
+                visible: products.length == 0 ? true : false,
                 child: CupertinoActivityIndicator()),
           ],
         ));
