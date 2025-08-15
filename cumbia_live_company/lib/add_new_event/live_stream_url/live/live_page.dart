@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'key_center.dart';
 
@@ -31,6 +32,8 @@ class _LivePageState extends State<LivePage> {
   Widget? remoteView;
   int? remoteViewID;
 
+  final TextEditingController _chatController = TextEditingController();
+
   @override
   void initState() {
     startListenEvent();
@@ -42,6 +45,7 @@ class _LivePageState extends State<LivePage> {
   void dispose() {
     stopListenEvent();
     logoutRoom();
+    _chatController.dispose();
     super.dispose();
   }
 
@@ -49,22 +53,99 @@ class _LivePageState extends State<LivePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Preview Live Streaming")),
-      body: Stack(
+      body: Row(
         children: [
-          (widget.isHost ? localView : remoteView) ?? SizedBox.shrink(),
-          Positioned(
-            bottom: MediaQuery.of(context).size.height / 20,
-            left: 0,
-            right: 0,
-            child: Center(
-              child: SizedBox(
-                width: 300,
-                height: 100,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.of(context).pushAndRemoveUntil((CupertinoPageRoute(builder: (context) => HomeScreen())), (route) => false),
-                  child: Text(widget.isHost ? 'End Live' : 'Leave Live'),
+          Expanded(
+            flex: 3,
+            child: Stack(
+              children: [
+                (widget.isHost ? localView : remoteView) ?? SizedBox.shrink(),
+                Positioned(
+                  bottom: MediaQuery.of(context).size.height / 20,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: SizedBox(
+                      width: 300,
+                      height: 100,
+                      child: ElevatedButton(
+                        onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+                          CupertinoPageRoute(builder: (context) => HomeScreen()),
+                              (route) => false,
+                        ),
+                        child: Text(widget.isHost ? 'End Live' : 'Leave Live'),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+              ],
+            ),
+          ),
+
+          Container(
+            width: 300,
+            color: Colors.grey.shade200,
+            child: Column(
+              children: [
+                // Chat messages
+                Expanded(
+                  child: StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection('rooms')
+                        .doc(widget.roomID)
+                        .collection('messages')
+                        .orderBy('timestamp', descending: true)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return Center(child: CircularProgressIndicator());
+                      }
+
+                      final docs = snapshot.data!.docs;
+
+                      return ListView.builder(
+                        reverse: true,
+                        itemCount: docs.length,
+                        itemBuilder: (context, index) {
+                          final data = docs[index].data() as Map<String, dynamic>;
+                          return ListTile(
+                            title: Text(
+                              data['userName'] ?? '',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Text(data['text'] ?? ''),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+
+                Divider(height: 1),
+
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: _chatController,
+                          decoration: InputDecoration(
+                            hintText: 'Type a message...',
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10),
+                          ),
+                          onSubmitted: (_) => sendMessage(),
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: sendMessage,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -72,35 +153,45 @@ class _LivePageState extends State<LivePage> {
     );
   }
 
+  // Firestore send message
+  Future<void> sendMessage() async {
+    final text = _chatController.text.trim();
+    if (text.isEmpty) return;
+
+    await FirebaseFirestore.instance
+        .collection('rooms')
+        .doc(widget.roomID)
+        .collection('messages')
+        .add({
+      'userID': widget.localUserID,
+      'userName': widget.localUserName,
+      'text': text,
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    _chatController.clear();
+  }
+
   Future<ZegoRoomLoginResult> loginRoom() async {
-    // The value of `userID` is generated locally and must be globally unique.
     final user = ZegoUser(widget.localUserID, widget.localUserName);
-
-    // The value of `roomID` is generated locally and must be globally unique.
     final roomID = widget.roomID;
-
-    // onRoomUserUpdate callback can be received when "isUserStatusNotify" parameter value is "true".
     ZegoRoomConfig roomConfig = ZegoRoomConfig.defaultConfig()..isUserStatusNotify = true;
 
     if (kIsWeb) {
-      // ! ** Warning: ZegoTokenUtils is only for use during testing. When your application goes live,
-      // ! ** tokens must be generated by the server side. Please do not generate tokens on the client side!
       roomConfig.token = ZegoTokenUtils.generateToken(appID, serverSecret, widget.localUserID);
     }
-    // log in to a room
-    // Users must log in to the same room to call each other.
+
     return ZegoExpressEngine.instance
         .loginRoom(roomID, user, config: roomConfig)
-        .then((ZegoRoomLoginResult loginRoomResult) {
-      debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}, extendedData:${loginRoomResult.extendedData}');
-      if (loginRoomResult.errorCode == 0) {
-        if (widget.isHost) {
-          startPreview();
-          startPublish();
-        }
-      } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('loginRoom failed: ${loginRoomResult.errorCode}')));
+        .then((loginRoomResult) {
+      debugPrint('loginRoom: errorCode:${loginRoomResult.errorCode}');
+      if (loginRoomResult.errorCode == 0 && widget.isHost) {
+        startPreview();
+        startPublish();
+      } else if (loginRoomResult.errorCode != 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('loginRoom failed: ${loginRoomResult.errorCode}')),
+        );
       }
       return loginRoomResult;
     });
@@ -113,16 +204,12 @@ class _LivePageState extends State<LivePage> {
   }
 
   void startListenEvent() {
-    // Callback for updates on the status of other users in the room.
-    // Users can only receive callbacks when the isUserStatusNotify property of ZegoRoomConfig is set to `true` when logging in to the room (loginRoom).
-    ZegoExpressEngine.onRoomUserUpdate = (roomID, updateType, List<ZegoUser> userList) {
-      debugPrint(
-          'onRoomUserUpdate: roomID: $roomID, updateType: ${updateType.name}, userList: ${userList.map((e) => e.userID)}');
+    ZegoExpressEngine.onRoomUserUpdate = (roomID, updateType, userList) {
+      debugPrint('onRoomUserUpdate: $roomID ${updateType.name}');
     };
-    // Callback for updates on the status of the streams in the room.
-    ZegoExpressEngine.onRoomStreamUpdate = (roomID, updateType, List<ZegoStream> streamList, extendedData) {
-      debugPrint(
-          'onRoomStreamUpdate: roomID: $roomID, updateType: $updateType, streamList: ${streamList.map((e) => e.streamID)}, extendedData: $extendedData');
+
+    ZegoExpressEngine.onRoomStreamUpdate = (roomID, updateType, streamList, extendedData) {
+      debugPrint('onRoomStreamUpdate: $roomID $updateType');
       if (updateType == ZegoUpdateType.Add) {
         for (final stream in streamList) {
           startPlayStream(stream.streamID);
@@ -133,16 +220,13 @@ class _LivePageState extends State<LivePage> {
         }
       }
     };
-    // Callback for updates on the current user's room connection status.
+
     ZegoExpressEngine.onRoomStateUpdate = (roomID, state, errorCode, extendedData) {
-      debugPrint(
-          'onRoomStateUpdate: roomID: $roomID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+      debugPrint('onRoomStateUpdate: $roomID ${state.name}');
     };
 
-    // Callback for updates on the current user's stream publishing changes.
     ZegoExpressEngine.onPublisherStateUpdate = (streamID, state, errorCode, extendedData) {
-      debugPrint(
-          'onPublisherStateUpdate: streamID: $streamID, state: ${state.name}, errorCode: $errorCode, extendedData: $extendedData');
+      debugPrint('onPublisherStateUpdate: $streamID ${state.name}');
     };
   }
 
@@ -176,8 +260,6 @@ class _LivePageState extends State<LivePage> {
   }
 
   Future<void> startPublish() async {
-    // After calling the `loginRoom` method, call this method to publish streams.
-    // The StreamID must be unique in the room.
     String streamID = '${widget.roomID}_${widget.localUserID}_call';
     return ZegoExpressEngine.instance.startPublishingStream(streamID);
   }
@@ -187,13 +269,11 @@ class _LivePageState extends State<LivePage> {
   }
 
   Future<void> startPlayStream(String streamID) async {
-    // Start to play streams. Set the view for rendering the remote streams.
     await ZegoExpressEngine.instance.createCanvasView((viewID) {
       remoteViewID = viewID;
       ZegoCanvas canvas = ZegoCanvas(viewID, viewMode: ZegoViewMode.AspectFill);
       ZegoPlayerConfig config = ZegoPlayerConfig.defaultConfig();
-      config.resourceMode = ZegoStreamResourceMode.Default; // live streaming
-      // config.resourceMode = ZegoStreamResourceMode.OnlyL3; // interactive live streaming
+      config.resourceMode = ZegoStreamResourceMode.Default;
       ZegoExpressEngine.instance.startPlayingStream(streamID, canvas: canvas, config: config);
     }).then((canvasViewWidget) {
       setState(() => remoteView = canvasViewWidget);
