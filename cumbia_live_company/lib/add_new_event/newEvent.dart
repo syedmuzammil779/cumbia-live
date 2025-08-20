@@ -380,11 +380,12 @@ class NewEventScreen extends StatelessWidget {
                                       ),
                                     ),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                      },
                                       child: Image.asset(
                                         'assets/img/settings.png',
-                                        height: 32.02.h,
-                                        width: 32.02.w,
+                                        // height: 32.02.h,
+                                        // width: 32.02.w,
                                       ),
                                     ),
                                     GestureDetector(

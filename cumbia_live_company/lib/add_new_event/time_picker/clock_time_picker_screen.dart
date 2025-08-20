@@ -73,7 +73,7 @@ class _ClockTimePickerState extends State<ClockTimePicker> {
 
             // --- Conditional Hour / Minute Picker ---
             if (!showMinutes) ...[
-              const Text("Select Hour", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const Text("Seleccionar hora", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 10),
               SizedBox(
                 width: radius * 2,
@@ -122,7 +122,7 @@ class _ClockTimePickerState extends State<ClockTimePicker> {
                 ),
               ),
             ] else ...[
-              const Text("Select Minute", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+              const Text("Seleccionar minuto", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
               const SizedBox(height: 10),
               SizedBox(
                 width: radius * 2,

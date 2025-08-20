@@ -354,7 +354,7 @@ class _UploadScreen extends State<UploadScreen> {
                                         padding: EdgeInsets.all(4),
                                         child: Center(
                                             child: Text(
-                                          "New Upload",
+                                          "Nueva descarga",
                                           style: TextStyle(
                                               color: (uploadStatus == false)
                                                   ? Colors.white
@@ -382,7 +382,7 @@ class _UploadScreen extends State<UploadScreen> {
                                                 BorderRadius.circular(40)),
                                         child: Center(
                                             child: Text(
-                                          "Recent",
+                                          "Reciente",
                                           style: TextStyle(
                                               fontSize: 12.sp,
                                               color: (uploadStatus == true)
@@ -563,7 +563,7 @@ class _UploadScreen extends State<UploadScreen> {
                               );
                             },
                             child: Text(
-                              "Seleccionar prodcutos",
+                              "Seleccionar productos",
                               style: TextStyle(
                                   fontSize: 20.sp,
                                   fontWeight: FontWeight.w600,

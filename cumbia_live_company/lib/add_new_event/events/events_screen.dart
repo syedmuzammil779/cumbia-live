@@ -125,26 +125,26 @@ class _EventsScreenState extends State<EventsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("Event Options"),
-        content: const Text("Choose an action for this event."),
+        title: const Text("Opciones de eventos"),
+        content: const Text("Elija una acción para este evento"),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context); // close dialog
               _editEventDate(event);  // call your edit function
             },
-            child: const Text("Edit Date"),
+            child: const Text("Editar fecha"),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context); // close dialog
               _confirmDeleteEvent(context, event); // confirm deletion
             },
-            child: const Text("Delete Event", style: TextStyle(color: Colors.red),),
+            child: const Text("Eliminar evento", style: TextStyle(color: Colors.red),),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text("Cancelar"),
           ),
         ],
       ),
@@ -156,19 +156,19 @@ class _EventsScreenState extends State<EventsScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: Colors.white,
-        title: const Text("Delete Event"),
-        content: const Text("Are you sure you want to delete this event?"),
+        title: const Text("Eliminar evento"),
+        content: const Text("¿Estás seguro que deseas eliminar este evento?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text("Cancel"),
+            child: const Text("Cancelar"),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               _deleteEvent(event);
             },
-            child: const Text("Delete", style: TextStyle(color: Colors.red)),
+            child: const Text("Borrar", style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -179,11 +179,11 @@ class _EventsScreenState extends State<EventsScreen> {
   try {
     await FirebaseFirestore.instance.collection('events').doc(event.id).delete();
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Event deleted')),
+      const SnackBar(content: Text('Evento eliminado')),
     );
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to delete event: $e')),
+      SnackBar(content: Text('No se pudo eliminar el evento: $e')),
     );
   }
 }
