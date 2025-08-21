@@ -884,7 +884,6 @@ class _State extends State<HomeScreen>{
                         padding: EdgeInsets.only(
                           top: screenSizeHeight * 0.05,
                           left: screenSizeWidth * 0.05,
-                          right: screenSizeWidth * 0.27,
                           bottom: screenSizeHeight * 0.05,
                         ),
                         physics: ScrollPhysics(),
@@ -1093,6 +1092,9 @@ class _State extends State<HomeScreen>{
                             height: screenSizeHeight * 0.05,
                           ),
                           Container(
+                            margin: EdgeInsets.only(
+                              right: screenSizeWidth * 0.22,
+                            ),
                             padding: EdgeInsets.only(
                                 top: screenSizeHeight * 0.045,
                                 bottom: screenSizeHeight * 0.045,

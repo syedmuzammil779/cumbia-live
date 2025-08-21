@@ -49,12 +49,12 @@ class _LivePageState extends State<LivePage> {
     super.initState();
   }
 
-  bool showAllProducts = true;
+  bool showAllProducts = false;
 
   List<Map<String, dynamic>> products = [
     {"name": "Chef Knife", "description": "High-quality stainless steel knife for precise cutting.", "price": 300.99, "image": "https://picsum.photos/200/140?1"},
     {"name": "Wireless Earbuds", "description": "Noise-cancelling earbuds with long battery life.", "price": 39.99, "image": "https://picsum.photos/200/140?2"},
-    {"name": "Running Shoes", "description": "Lightweight and comfortable for daily jogging.", "price": 79.99, "image": "https://picsum.photos/200/140?3"},
+    {"name": "Running Shoes", "description": "Lightweight and comfortable", "price": 79.99, "image": "https://picsum.photos/200/140?3"},
   ];
 
   @override
@@ -117,7 +117,7 @@ class _LivePageState extends State<LivePage> {
                       Container(
                         height: cartDetails == true ?0.6.sh:0.2.sh,
                         child: Positioned(
-                          top: 0, // (kept as-is from your code)
+                          top: 0,
                           bottom: MediaQuery.of(context).size.height / 20,
                           left: 0,
                           right: 0,
@@ -128,13 +128,13 @@ class _LivePageState extends State<LivePage> {
                               SizedBox(
                                 width: 300,
                                 height: 100,
-                                child: ElevatedButton(
+                                child: Container()/*ElevatedButton(
                                   onPressed: () => Navigator.of(context).pushAndRemoveUntil(
                                     CupertinoPageRoute(builder: (context) => HomeScreen()),
                                     (route) => false,
                                   ),
                                   child: Text(widget.isHost ? 'End Live' : 'Leave Live'),
-                                ),
+                                ),*/
                               ),
                               cartDetails == true
                                   ? Container(
@@ -194,7 +194,7 @@ class _LivePageState extends State<LivePage> {
                                                       borderRadius: BorderRadius.circular(6)
 
                                                     ),
-                                                  
+
                                                   ),
                                                   SizedBox(width: 10.w),
                                                   Expanded(
@@ -722,7 +722,7 @@ class _LivePageState extends State<LivePage> {
                         ),
                         Expanded(
                           child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance.collection('rooms').doc(widget.roomID).collection('messages').orderBy('timestamp', descending: true).snapshots(),
+                            stream: FirebaseFirestore.instance.collection('rooms').doc("${widget.roomID}_$_userName").collection('messages').orderBy('timestamp', descending: true).snapshots(),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
                                 return const Center(child: CircularProgressIndicator());
@@ -820,7 +820,7 @@ class _LivePageState extends State<LivePage> {
 
     if (_chatController.text.trim().isEmpty) return;
 
-    await FirebaseFirestore.instance.collection('rooms').doc(widget.roomID).collection('messages').add({
+    await FirebaseFirestore.instance.collection('rooms').doc("${widget.roomID}_$_userName").collection('messages').add({
       'userName': _userName,
       'text': _chatController.text.trim(),
       'timestamp': FieldValue.serverTimestamp(),

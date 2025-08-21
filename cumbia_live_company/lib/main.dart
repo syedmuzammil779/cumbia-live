@@ -118,8 +118,19 @@ class MyApp extends StatelessWidget {
                   );
                 } else {
                   return MaterialPageRoute(
-                    builder: (_) => const Scaffold(
-                      body: Center(child: Text('Invalid Route')),
+                    builder: (_) => FutureBuilder<User?>(
+                      future: _getCurrentUser(),
+                      builder: (context, AsyncSnapshot<User?> snapshot) {
+                        if (snapshot.hasData) {
+                          if (snapshot.data?.emailVerified == true) {
+                            return HomeScreen();
+                          } else {
+                            return ConfirmationMail();
+                          }
+                        } else {
+                          return UserAuth();
+                        }
+                      },
                     ),
                   );
                 }
