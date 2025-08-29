@@ -3,6 +3,7 @@ import 'package:cumbia_live_company/homeScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -37,9 +38,10 @@ class _LivePageState extends State<LivePage> {
   bool cartAdded = false;
   int num = 1;
 
+  int step = 0; // 0 = cart, 1 = form, 2 = payment
+
   // ✅ which card is expanded/selected
   int? _selectedIndex;
-
   final TextEditingController _chatController = TextEditingController();
 
   @override
@@ -88,34 +90,73 @@ class _LivePageState extends State<LivePage> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(
-                              onPressed: () {
-                                setState(() {
-                                  cartDetails = true;
-                                });
-                              },
-                              icon: cartDetails == false
-                                  ? Icon(
-                                      Icons.shopping_cart,
-                                      size: 30.sp,
-                                      color: Colors.lightBlue,
-                                    )
-                                  : GestureDetector(
-                                      onTap: () {
+                            Container(
+                              child: Stack(
+                                clipBehavior: Clip.none,
+                                children: [
+                                  // Your cart container
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: cartDetails == false
+                                          ? const Color(0xFF001D2B).withOpacity(0.7)
+                                          : Colors.transparent,
+                                      borderRadius: BorderRadius.circular(12.r),
+                                    ),
+                                    child: IconButton(
+                                      onPressed: () {
                                         setState(() {
-                                          cartDetails = false;
+                                          cartDetails = true;
                                         });
                                       },
-                                      child: Icon(
-                                        Icons.close_outlined,
+                                      icon: cartDetails == false
+                                          ? Icon(
+                                        Icons.shopping_cart,
                                         size: 30.sp,
-                                      )),
-                            ),
+                                        color: cartAdded == true ? Colors.white : Colors.grey,
+                                      )
+                                          : GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            cartDetails = false;
+                                          });
+                                        },
+                                        child: Icon(
+                                          Icons.close_outlined,
+                                          size: 30.sp,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+
+                                  cartAdded  == true && cartDetails == false?
+                                  Positioned(
+                                    right: -8, // adjust to fit exactly on corner
+                                    top: -8,
+                                    child: Container(
+                                      padding: EdgeInsets.all(6.w),
+                                      decoration: const BoxDecoration(
+                                        color: Colors.lightBlue,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Text(
+                                        "1", // cart item count here
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ):SizedBox.shrink()
+                                ],
+                              ),
+                            )
+
                           ],
                         ),
                       ),
                       Container(
-                        height: cartDetails == true ?0.6.sh:0.2.sh,
+                        height: cartDetails == true ? 0.6.sh : 0.2.sh,
                         child: Positioned(
                           top: 0,
                           bottom: MediaQuery.of(context).size.height / 20,
@@ -126,26 +167,436 @@ class _LivePageState extends State<LivePage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               SizedBox(
-                                width: 300,
-                                height: 100,
-                                child: Container()/*ElevatedButton(
+                                  width: 300,
+                                  height: 100,
+                                  child:
+                                      Container() /*ElevatedButton(
                                   onPressed: () => Navigator.of(context).pushAndRemoveUntil(
                                     CupertinoPageRoute(builder: (context) => HomeScreen()),
                                     (route) => false,
                                   ),
                                   child: Text(widget.isHost ? 'End Live' : 'Leave Live'),
                                 ),*/
-                              ),
-                              cartDetails == true
+                                  ),
+                              step == 0
                                   ? Container(
-                                      height: cartDetails == true ?0.6.sh:0,
+                                      height: cartDetails == true ? 0.6.sh : 0,
                                       width: 0.2.sw,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF001D2B).withOpacity(0.7),
-                                  borderRadius: BorderRadius.circular(12.r)
+                                      decoration: BoxDecoration(color: const Color(0xFF001D2B).withOpacity(0.7), borderRadius: BorderRadius.circular(12.r)),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Header
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                                child: Row(
+                                                  children: [
+                                                    Text(
+                                                      "Carrito de compras  ",
+                                                      style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.grey.shade400),
+                                                    ),
+                                                    Icon(
+                                                      Icons.shopping_cart,
+                                                      color: Colors.grey.shade400,
+                                                      size: 16.sp,
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 12.h),
 
-                                ),
+                                          // Cart items
+                                          Expanded(
+                                            child: ListView(
+                                              children: [
+                                                Container(
+                                                  margin: EdgeInsets.only(bottom: 10.h),
+                                                  padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 12.w),
+                                                  child: ClipRRect(
+                                                    borderRadius: BorderRadius.circular(12.r),
+                                                    child: Column(
+                                                      children: [
+                                                        // Top section
+                                                        Container(
+                                                          color: Color(0xFF0D8DA3),
+                                                          padding: EdgeInsets.all(8.w),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                height: 40.h,
+                                                                width: 40.h,
+                                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
+                                                              ),
+                                                              SizedBox(width: 10.w),
+                                                              Expanded(
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  children: [
+                                                                    Text("Sartén antiadherente",
+                                                                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                      children: [
+                                                                        Text("Azul/Grande", style: TextStyle(color: Colors.white70, fontSize: 12.sp)),
+                                                                        Container(
+                                                                          width: 100.w,
+                                                                          color: Colors.black12,
+                                                                          child: Row(
+                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                            children: [
+                                                                              GestureDetector(
+                                                                                onTap: () {
+                                                                                  setState(() {
+                                                                                    num--;
+                                                                                  });
+                                                                                },
+                                                                                child: Container(
+                                                                                  height: 30.h,
+                                                                                  width: 30.w,
+                                                                                  decoration: BoxDecoration(
+                                                                                    borderRadius: BorderRadius.circular(7),
+                                                                                    color: Colors.black26,
+                                                                                  ),
+                                                                                  child: Icon(Icons.remove_circle, color: Colors.white, size: 18.sp),
+                                                                                ),
+                                                                              ),
+                                                                              Padding(
+                                                                                padding: EdgeInsets.symmetric(horizontal: 6.w),
+                                                                                child: Text(num.toString(), style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                                              ),
+                                                                              GestureDetector(
+                                                                                onTap: () {
+                                                                                  setState(() {
+                                                                                    num++;
+                                                                                  });
+                                                                                },
+                                                                                child: Container(
+                                                                                  height: 30.h,
+                                                                                  width: 30.w,
+                                                                                  decoration: BoxDecoration(
+                                                                                    borderRadius: BorderRadius.circular(7),
+                                                                                    color: Colors.black26,
+                                                                                  ),
+                                                                                  child: Icon(Icons.add_circle, color: Colors.white, size: 18.sp),
+                                                                                ),
+                                                                              ),
+                                                                            ],
+                                                                          ),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    SizedBox(height: 6.h),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
 
+                                                        // Bottom section
+                                                        Container(
+                                                          color: Colors.black26,
+                                                          width: double.infinity,
+                                                          padding: EdgeInsets.all(8.w),
+                                                          child: Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            children: [
+                                                              Text(
+                                                                "precio",
+                                                                style: TextStyle(color: Colors.white),
+                                                              ),
+                                                              Text("300.000 COP", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+
+// Second Item
+                                              ],
+                                            ),
+                                          ),
+
+                                          // Subtotal + Checkout
+                                          Container(
+                                            height: 120.h,
+                                            margin: EdgeInsets.only(top: 8.h),
+                                            padding: EdgeInsets.all(12.w),
+                                            decoration: BoxDecoration(
+                                              color: Color(0xFF001D2B),
+                                              border: Border.all(
+                                                color: Color(0xFF0D8DA3),
+                                                width: 1, // border thickness
+                                              ),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(12.r),
+                                                topRight: Radius.circular(12.r),
+                                                bottomRight: Radius.circular(12.r),
+                                                bottomLeft: Radius.circular(12.r),
+                                              ),
+                                            ),
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                  children: [
+                                                    Text("SubTotal", style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.bold)),
+                                                    Text("600.000 COP", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10.h),
+                                                ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: Color(0xFF0D8DA3),
+                                                    minimumSize: Size(0.3.sw, 60.h),
+                                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                                                  ),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      step = 1;
+                                                    });
+                                                  },
+                                                  child: Text("Checkout", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : step == 1
+                                      ? Container(
+                                          height: cartDetails == true ? 0.6.sh : 0,
+                                          width: 0.2.sw,
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFF001D2B).withOpacity(0.7),
+                                            borderRadius: BorderRadius.circular(12.r),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              // Header
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Container(
+                                                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                                    child: Text(
+                                                      "Informacion para envio",
+                                                      style: TextStyle(
+                                                        fontSize: 16.sp,
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.grey.shade400,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 12.h),
+
+                                              // Form fields
+                                              Expanded(
+                                                child: Column(
+                                                  children: [
+                                                    // Pais
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Pais", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                          TextFormField(
+                                                            keyboardType: TextInputType.text,
+                                                            decoration: InputDecoration(
+                                                              fillColor: Colors.white,
+                                                              filled: true,
+                                                              contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
+                                                              border:
+                                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                  borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                              enabledBorder:
+                                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                              hintText: 'Pais',
+                                                              hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                            ),
+                                                            validator: (value) {
+                                                              if (value == null || value.isEmpty) {
+                                                                return 'Please fill it';
+                                                              }
+                                                              return null;
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    // Ciudad
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Ciudad", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                          TextFormField(
+                                                            keyboardType: TextInputType.text,
+                                                            decoration: InputDecoration(
+                                                              fillColor: Colors.white,
+                                                              filled: true,
+                                                              contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h),
+                                                              border:
+                                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                  borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                              enabledBorder:
+                                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                              hintText: 'Ciudad',
+                                                              hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                            ),
+                                                            validator: (value) {
+                                                              if (value == null || value.isEmpty) {
+                                                                return 'Please fill it';
+                                                              }
+                                                              return null;
+                                                            },
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    // Direccion (Dropdown)
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Direccion", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                          Theme(
+                                                            data: Theme.of(context).copyWith(
+                                                              highlightColor: Colors.transparent,
+                                                              focusColor: Colors.transparent,
+                                                              hoverColor: Colors.transparent,
+                                                            ),
+                                                            child: DropdownButtonFormField<String>(
+                                                              dropdownColor: Colors.white,
+                                                              style: TextStyle(color: Colors.black, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                              decoration: InputDecoration(
+                                                                fillColor: Colors.white,
+                                                                filled: true,
+                                                                contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h),
+                                                                border:
+                                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                                focusedBorder: OutlineInputBorder(
+                                                                    borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                                enabledBorder:
+                                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                                hintText: 'Direccions',
+                                                                hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                              ),
+                                                              items: ["Madrid", "Barcelona", "Valencia", "Sevilla"]
+                                                                  .map((city) => DropdownMenuItem<String>(
+                                                                        value: city,
+                                                                        child: Text(city, style: TextStyle(color: Colors.black)),
+                                                                      ))
+                                                                  .toList(),
+                                                              onChanged: (value) {},
+                                                              validator: (value) {
+                                                                if (value == null || value.isEmpty) {
+                                                                  return 'Please select a city';
+                                                                }
+                                                                return null;
+                                                              },
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+
+                                                    // Detalles
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text("Detalles (opcional)", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                          TextFormField(
+                                                            keyboardType: TextInputType.multiline,
+                                                            minLines: 3,
+                                                            maxLines: null,
+                                                            decoration: InputDecoration(
+                                                              fillColor: Colors.white,
+                                                              filled: true,
+                                                              contentPadding: EdgeInsets.all(14.w),
+                                                              border:
+                                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                              focusedBorder: OutlineInputBorder(
+                                                                  borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                              enabledBorder:
+                                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                              hintText: 'Detalles',
+                                                              hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              // Subtotal + Checkout
+                                              Container(
+                                                height: 120.h,
+                                                margin: EdgeInsets.only(top: 8.h),
+                                                padding: EdgeInsets.all(12.w),
+                                                decoration: BoxDecoration(
+                                                  color: const Color(0xFF001D2B),
+                                                  border: Border.all(color: const Color(0xFF0D8DA3), width: 1),
+                                                  borderRadius: BorderRadius.circular(12.r),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                                  children: [
+                                                    Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Text("SubTotal", style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.bold)),
+                                                        Text("600.000 COP", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 10.h),
+                                                    ElevatedButton(
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: const Color(0xFF0D8DA3),
+                                                        minimumSize: Size(0.3.sw, 60.h),
+                                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+                                                      ),
+                                                      onPressed: () {
+                                                        setState(() {
+                                                          step = 2;
+                                                        });
+                                                      },
+                                                      child: Text("Continuar con Checkout", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : step == 2
+                                          ? Container(
+                                height: cartDetails == true ? 0.6.sh : 0,
+                                width: 0.2.sw,
+                                decoration: BoxDecoration(color: const Color(0xFF001D2B).withOpacity(0.7), borderRadius: BorderRadius.circular(12.r)),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -154,15 +605,18 @@ class _LivePageState extends State<LivePage> {
                                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
                                         Container(
-                                          padding: EdgeInsets.symmetric(horizontal:15.w,vertical: 5.w),
-
+                                          padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
                                           child: Row(
                                             children: [
                                               Text(
                                                 "Carrito de compras  ",
-                                                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold,color: Colors.grey.shade400),
+                                                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: Colors.grey.shade400),
                                               ),
-                                              Icon(Icons.shopping_cart,color: Colors.grey.shade400,size: 16.sp,)
+                                              Icon(
+                                                Icons.credit_card,
+                                                color: Colors.grey.shade400,
+                                                size: 16.sp,
+                                              )
                                             ],
                                           ),
                                         ),
@@ -172,133 +626,176 @@ class _LivePageState extends State<LivePage> {
 
                                     // Cart items
                                     Expanded(
-                                      child: ListView(
-                                        children: [
-                                      Container(
-                                      margin: EdgeInsets.only(bottom: 10.h),
-                                        padding: EdgeInsets.symmetric(horizontal:15.w,vertical: 12.w),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
 
-                                        child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(12.r),
                                         child: Column(
                                           children: [
-                                            // Top section
                                             Container(
-                                              color: Color(0xFF0D8DA3),
-                                              padding: EdgeInsets.all(8.w),
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    height: 40.h,width: 40.h,
-                                                    decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(6)
-
-                                                    ),
-
-                                                  ),
-                                                  SizedBox(width: 10.w),
-                                                  Expanded(
-                                                    child: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Text("Sartén antiadherente",
-                                                            style: TextStyle(
-                                                                color: Colors.white,
-                                                                fontWeight: FontWeight.bold,
-                                                                fontSize: 14.sp)),
-                                                        Row(
-                                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                          children: [
-                                                            Text("Azul/Grande",
-                                                                style: TextStyle(
-                                                                    color: Colors.white70, fontSize: 12.sp)),
-                                                            Container(
-                                                              width: 100.w,
-                                                              color:Colors.black12 ,
-                                                              child: Row(
-                                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                children: [
-                                                                  GestureDetector(
-                                                                    onTap: () {
-                                                                      setState(() {
-                                                                        num--;
-                                                                      });
-                                                                    },
-                                                                    child: Container(
-                                                                      height: 30.h,
-                                                                      width: 30.w,
-                                                                      decoration: BoxDecoration(
-                                                                        borderRadius: BorderRadius.circular(7),
-                                                                        color: Colors.black26,
-
-                                                                      ),
-                                                                      child: Icon(Icons.remove_circle,
-                                                                          color: Colors.white, size: 18.sp),
-                                                                    ),
-                                                                  ),
-                                                                  Padding(
-                                                                    padding:
-                                                                    EdgeInsets.symmetric(horizontal: 6.w),
-                                                                    child: Text(num.toString(),
-                                                                        style: TextStyle(
-                                                                            color: Colors.white,
-                                                                            fontWeight: FontWeight.bold)),
-                                                                  ),
-                                                                  GestureDetector(
-                                                                    onTap: () {
-                                                                      setState(() {
-                                                                        num++;
-                                                                      });
-                                                                    },
-                                                                    child: Container(
-                                                                      height: 30.h,
-                                                                      width: 30.w,
-
-                                                                      decoration: BoxDecoration(
-                                                                          borderRadius: BorderRadius.circular(7),
-                                                                        color: Colors.black26,
-
-                                                                      ),
-                                                                      child: Icon(Icons.add_circle,
-                                                                          color: Colors.white, size: 18.sp),
-                                                                    ),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                        SizedBox(height: 6.h),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-
-                                            // Bottom section
-                                            Container(
-                                              color: Colors.black26,
+                                              height: 220.h,
                                               width: double.infinity,
-                                              padding: EdgeInsets.all(8.w),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              color: Colors.lightBlue,
+                                              child: Center(
+                                                child: Text("Add card image here"),
+                                              ),
+                                            ),
+                                            SizedBox(height: 10.h,),
+
+                                            Container(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
-                                                  Text("precio",style: TextStyle(color: Colors.white),),
-                                                  Text("300.000 COP",
-                                                      style: TextStyle(
-                                                          color: Colors.white, fontWeight: FontWeight.bold)),
+                                                  Text("Numero de tajeta", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                  TextFormField(
+                                                    keyboardType: TextInputType.text,
+                                                    decoration: InputDecoration(
+                                                      fillColor: Colors.white,
+                                                      filled: true,
+                                                      contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
+                                                      border:
+                                                      OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                      focusedBorder: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                      enabledBorder:
+                                                      OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                      hintText: 'Numero de tajeta',
+                                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                    ),
+                                                    validator: (value) {
+                                                      if (value == null || value.isEmpty) {
+                                                        return 'Please fill it';
+                                                      }
+                                                      return null;
+                                                    },
+                                                  ),
                                                 ],
                                               ),
                                             ),
+                                            SizedBox(height: 10.h,),
+
+                                            Container(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text("Nombre del dueno", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                  TextFormField(
+                                                    keyboardType: TextInputType.text,
+                                                    decoration: InputDecoration(
+                                                      fillColor: Colors.white,
+                                                      filled: true,
+                                                      contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
+                                                      border:
+                                                      OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                      focusedBorder: OutlineInputBorder(
+                                                          borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                      enabledBorder:
+                                                      OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                      hintText: 'Escribe aquí la fecha de vencimiento',
+                                                      hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                    ),
+                                                    validator: (value) {
+                                                      if (value == null || value.isEmpty) {
+                                                        return 'Please fill it';
+                                                      }
+                                                      return null;
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            SizedBox(height: 10.h,),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                    children: [
+                                                      Text("Fecha de vencimiento", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+
+
+                                                TextFormField(
+                                                keyboardType: TextInputType.number,
+                                                  inputFormatters: [
+                                                    FilteringTextInputFormatter.digitsOnly,
+                                                    LengthLimitingTextInputFormatter(4),
+                                                    ExpiryDateTextFormatter(),
+                                                  ],
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(8.sp),
+                                                      borderSide: const BorderSide(color: Colors.grey),
+                                                    ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(8.sp),
+                                                      borderSide: const BorderSide(color: Colors.lightBlue),
+                                                    ),
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderRadius: BorderRadius.circular(8.sp),
+                                                      borderSide: const BorderSide(color: Colors.grey),
+                                                    ),
+                                                    hintText: "Escribe la fecha",
+                                                    hintStyle: TextStyle(
+                                                      color: Colors.grey,
+                                                      fontSize: 14.sp,
+                                                      fontFamily: 'Tajawal',
+                                                    ),
+                                                  ),
+                                                ),
+
+                                              ],
+                                                  ),
+                                                ),
+                                                SizedBox(width: 30.w,),
+                                                Expanded(
+                                                  flex: 1,
+                                                  child: Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                    children: [
+                                                      Text("CCV", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+
+                                                      TextFormField(
+                                                        keyboardType: TextInputType.number,
+                                                        decoration: InputDecoration(
+                                                          fillColor: Colors.white,
+                                                          filled: true,
+                                                          contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h),
+                                                          border: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8.sp),
+                                                              borderSide: const BorderSide(color: Colors.grey)),
+                                                          focusedBorder: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8.sp),
+                                                              borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                          enabledBorder: OutlineInputBorder(
+                                                              borderRadius: BorderRadius.circular(8.sp),
+                                                              borderSide: const BorderSide(color: Colors.grey)),
+                                                          hintText: 'Escribe el código',
+                                                          hintStyle: TextStyle(
+                                                              color: Colors.grey,
+                                                              fontSize: 14.sp,
+                                                              fontFamily: 'Tajawal'),
+                                                        ),
+                                                        validator: (value) {
+                                                          if (value == null || value.isEmpty) {
+                                                            return 'Required';
+                                                          }
+                                                          return null;
+                                                        },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            )
+
                                           ],
+                                        
                                         ),
-                                      ),
-                                    ),
-
-
-                                // Second Item
-                                        ],
                                       ),
                                     ),
 
@@ -326,45 +823,38 @@ class _LivePageState extends State<LivePage> {
                                           Row(
                                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                             children: [
-                                              Text("SubTotal",
-                                                  style: TextStyle(color: Colors.white, fontSize: 13.sp,fontWeight: FontWeight.bold)),
-                                              Text("600.000 COP",
-                                                  style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 14.sp)),
+                                              Text("SubTotal", style: TextStyle(color: Colors.white, fontSize: 13.sp, fontWeight: FontWeight.bold)),
+                                              Text("600.000 COP", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
                                             ],
                                           ),
                                           SizedBox(height: 10.h),
                                           ElevatedButton(
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor:                                       Color(0xFF0D8DA3),
-                                              minimumSize: Size(0.3.sw,60.h ),
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius: BorderRadius.circular(8.r)),
+                                              backgroundColor: Color(0xFF0D8DA3),
+                                              minimumSize: Size(0.3.sw, 60.h),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
                                             ),
-                                            onPressed: () {},
-                                            child: Text("Checkout",
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14.sp)),
+                                            onPressed: () {
+                                              setState(() {
+                                                step = 0;
+                                              });
+                                            },
+                                            child: Text("Confirmar compra", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14.sp)),
                                           ),
                                         ],
                                       ),
                                     ),
                                   ],
-                                )
-                                ,
-                                    )
-                                  : SizedBox.shrink()
+                                ),
+                              )
+                                          : SizedBox.shrink()
                             ],
                           ),
                         ),
                       ),
                       Container(
                         width: 1.0.sw,
-                        height: isAnySelected && cartDetails == false? 0.6.sh : 250.h,
+                        height: isAnySelected && cartDetails == false ? 0.6.sh : 250.h,
                         padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
                         child: Column(
                           children: [
@@ -381,16 +871,16 @@ class _LivePageState extends State<LivePage> {
                                     onTap: () {
                                       setState(() {
                                         // tap same card -> collapse; other card -> expand it
-                                        _selectedIndex = isSelected && cartDetails == false? null : index;
+                                        _selectedIndex = isSelected && cartDetails == false ? null : index;
                                       });
                                     },
                                     child: AnimatedContainer(
                                       key: ValueKey(product['name']),
-                                      duration: const Duration(milliseconds: 250),
+                                      duration: const Duration(milliseconds: 0),
                                       curve: Curves.easeInOut,
                                       margin: EdgeInsets.only(right: 15.w),
                                       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.w),
-                                      width: isSelected && cartDetails == false? 0.3.sw : 360.w,
+                                      width: isSelected && cartDetails == false ? 0.3.sw : 360.w,
                                       height: isSelected && cartDetails == false ? 0.45.sh : 250.h,
                                       decoration: BoxDecoration(
                                         color: const Color(0xFF001D2B).withOpacity(0.7),
@@ -449,7 +939,7 @@ class _LivePageState extends State<LivePage> {
                                                       maxLines: 3,
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
-                                                    if (!isSelected )
+                                                    if (!isSelected)
                                                       Row(
                                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                         children: [
@@ -648,32 +1138,34 @@ class _LivePageState extends State<LivePage> {
                             ),
 
                             // Arrow button to expand/collapse list of cards (kept)
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Container(
-                      height: 40.h,
-                      width: 40.w,
-                      color: const Color(0xFF001D2B).withOpacity(0.6),
-                      child: IconButton(
-                        padding: EdgeInsets.zero, // remove default padding
-                        alignment: Alignment.center, // force center alignment
-                        icon: Icon(
-                          showAllProducts
-                              ? Icons.keyboard_arrow_down
-                              : Icons.keyboard_arrow_up,
-                          color: Colors.white,
-                          size: 30.sp,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            showAllProducts = !showAllProducts;
-                          });
-                        },
-                      ),
-                    ),
-                  ),
+                            Align(
+                              alignment: Alignment.bottomRight,
+                              child: Container(
+                                height: 40.h,
+                                width: 40.w,
+                                decoration: 
+                                BoxDecoration(
+                                  color: const Color(0xFF001D2B).withOpacity(0.6),
+                                  borderRadius: BorderRadius.circular(6.r)
 
-                  ],
+                                ),
+                                child: IconButton(
+                                  padding: EdgeInsets.zero, // remove default padding
+                                  alignment: Alignment.center, // force center alignment
+                                  icon: Icon(
+                                    showAllProducts ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_up,
+                                    color: Colors.white,
+                                    size: 30.sp,
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      showAllProducts = !showAllProducts;
+                                    });
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       )
                     ],
@@ -722,7 +1214,12 @@ class _LivePageState extends State<LivePage> {
                         ),
                         Expanded(
                           child: StreamBuilder<QuerySnapshot>(
-                            stream: FirebaseFirestore.instance.collection('rooms').doc("${widget.roomID}_$_userName").collection('messages').orderBy('timestamp', descending: true).snapshots(),
+                            stream: FirebaseFirestore.instance
+                                .collection('rooms')
+                                .doc("${widget.roomID}_$_userName")
+                                .collection('messages')
+                                .orderBy('timestamp', descending: true)
+                                .snapshots(),
                             builder: (context, snapshot) {
                               if (!snapshot.hasData) {
                                 return const Center(child: CircularProgressIndicator());
@@ -1012,3 +1509,20 @@ class _LivePageState extends State<LivePage> {
     }
   }
 }
+class ExpiryDateTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    var text = newValue.text.replaceAll('/', ''); // remove any slashes
+
+    if (text.length > 2) {
+      text = text.substring(0, 2) + '/' + text.substring(2);
+    }
+
+    return TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+  }
+}
+
