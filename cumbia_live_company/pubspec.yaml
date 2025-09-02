@@ -45,7 +45,7 @@ dependencies:
   flutter_animated_dialog_updated: ^1.0.1
   syncfusion_flutter_pdfviewer:
   easy_stepper:
-  intl: ^0.20.2
+  intl: ^0.19.0
   flutter_screenutil: ^5.9.0
   dotted_border: ^2.0.0
   time_picker_spinner: ^1.0.2

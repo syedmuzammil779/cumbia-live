@@ -15,9 +15,9 @@ class AppTheme {
     required this.colors,
     AppTextStyles? textStyles,
   }) : textStyles = textStyles ??
-            AppTextStyles(
-              color: colors.colorScheme.onSurface,
-            );
+      AppTextStyles(
+        color: colors.colorScheme.onSurface,
+      );
 
   factory AppTheme.light() => AppTheme(colors: const AppColors.light());
 
@@ -27,10 +27,10 @@ class AppTheme {
   final AppTextStyles textStyles;
 
   ThemeData data(BuildContext context) => _builder(
-        mediaQuery: MediaQuery.of(context),
-        colors: colors,
-        textStyles: textStyles,
-      );
+    mediaQuery: MediaQuery.of(context),
+    colors: colors,
+    textStyles: textStyles,
+  );
 
   ThemeData _builder({
     required MediaQueryData mediaQuery,
@@ -46,13 +46,13 @@ class AppTheme {
     );
     const grey50 = Color(0xFFF4F5F6);
     final timeBackgroundColor = WidgetStateColor.resolveWith(
-      (states) {
+          (states) {
         if (states.isNotEmpty) return colorScheme.primary;
         return grey50;
       },
     );
     final timeTextColor = WidgetStateColor.resolveWith(
-      (states) {
+          (states) {
         if (states.isNotEmpty) return colorScheme.onPrimary;
         return colorScheme.onSurface;
       },
@@ -67,7 +67,7 @@ class AppTheme {
       datePickerTheme: DatePickerThemeData(
         backgroundColor: Colors.transparent,
         headerHeadlineStyle:
-            textStyles.bodySmall.withColor(colorScheme.onSurface),
+        textStyles.bodySmall.withColor(colorScheme.onSurface),
         // headerBackgroundColor: colorScheme.onSurface,
         // headerForegroundColor: colorScheme.surface,
         weekdayStyle: textStyles.textSmall.withColor(colorScheme.onSurface),
@@ -77,7 +77,7 @@ class AppTheme {
         // dayShape: const WidgetStatePropertyAll(CircleBorder()),
         // rangePickerBackgroundColor: colorScheme.onSurface,
         rangePickerHeaderHeadlineStyle:
-            textStyles.bodySmall.withColor(colorScheme.onSurface),
+        textStyles.bodySmall.withColor(colorScheme.onSurface),
         // rangePickerShape: const RoundedRectangleBorder(
         //   borderRadius: BorderRadius.vertical(
         //     top: Radius.circular(16),
@@ -176,11 +176,11 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
-      // bottomAppBarTheme: BottomAppBarTheme(
-      //   elevation: 0,
-      //   color: colorScheme.surface,
-      //   surfaceTintColor: colorScheme.surface,
-      // ),
+      bottomAppBarTheme: BottomAppBarTheme(
+        elevation: 0,
+        color: colorScheme.surface,
+        surfaceTintColor: colorScheme.surface,
+      ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colorScheme.surface,
         elevation: 0,
@@ -213,13 +213,13 @@ class AppTheme {
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith(
-          (Set<WidgetState> states) {
+              (Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)) return null;
             return const Color(0xff3B4B59);
           },
         ),
         trackOutlineColor: WidgetStateProperty.resolveWith(
-          (Set<WidgetState> states) {
+              (Set<WidgetState> states) {
             if (states.contains(WidgetState.selected)) return null;
             return const Color(0xff3B4B59);
           },
@@ -272,10 +272,44 @@ extension ThemeContext on BuildContext {
 
   bool get isAndroid => platform == TargetPlatform.android;
 
-  AppBarThemeData get appBarTheme => theme.appBarTheme;
+  AppBarTheme get appBarTheme => theme.appBarTheme;
 
   SystemUiOverlayStyle? get systemOverlayStyle =>
       appBarTheme.systemOverlayStyle;
+
+  SystemUiOverlayStyle? get transparentBars => systemOverlayStyle?.copyWith(
+    statusBarBrightness: theme.brightness.inverse,
+    statusBarIconBrightness: theme.brightness,
+    systemNavigationBarColor: scrim,
+    systemNavigationBarIconBrightness: theme.brightness,
+  );
+
+  SystemUiOverlayStyle? get lightStatusBar => systemOverlayStyle?.copyWith(
+    statusBarBrightness: Brightness.light,
+    statusBarIconBrightness: Brightness.dark,
+  );
+
+  SystemUiOverlayStyle? get darkStatusBar => systemOverlayStyle?.copyWith(
+    statusBarBrightness: Brightness.dark,
+    statusBarIconBrightness: Brightness.light,
+  );
+
+  SystemUiOverlayStyle? get darkSystemOverlay => darkStatusBar?.copyWith(
+    systemNavigationBarColor: primaryVariant,
+    systemNavigationBarIconBrightness: Brightness.light,
+  );
+
+  ThemeData get transparentBarsTheme => theme.copyWith(
+    appBarTheme: appBarTheme.copyWith(
+      systemOverlayStyle: transparentBars,
+    ),
+  );
+
+  ThemeData get lightBackgroundTheme => theme.copyWith(
+    appBarTheme: appBarTheme.copyWith(
+      backgroundColor: background,
+    ),
+  );
 }
 
 extension BrightnessX on Brightness {
