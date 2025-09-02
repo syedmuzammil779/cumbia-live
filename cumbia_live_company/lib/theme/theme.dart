@@ -176,11 +176,11 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
       ),
-      bottomAppBarTheme: BottomAppBarTheme(
-        elevation: 0,
-        color: colorScheme.surface,
-        surfaceTintColor: colorScheme.surface,
-      ),
+      // bottomAppBarTheme: BottomAppBarTheme(
+      //   elevation: 0,
+      //   color: colorScheme.surface,
+      //   surfaceTintColor: colorScheme.surface,
+      // ),
       bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: colorScheme.surface,
         elevation: 0,
@@ -272,44 +272,10 @@ extension ThemeContext on BuildContext {
 
   bool get isAndroid => platform == TargetPlatform.android;
 
-  AppBarTheme get appBarTheme => theme.appBarTheme;
+  AppBarThemeData get appBarTheme => theme.appBarTheme;
 
   SystemUiOverlayStyle? get systemOverlayStyle =>
       appBarTheme.systemOverlayStyle;
-
-  SystemUiOverlayStyle? get transparentBars => systemOverlayStyle?.copyWith(
-        statusBarBrightness: theme.brightness.inverse,
-        statusBarIconBrightness: theme.brightness,
-        systemNavigationBarColor: scrim,
-        systemNavigationBarIconBrightness: theme.brightness,
-      );
-
-  SystemUiOverlayStyle? get lightStatusBar => systemOverlayStyle?.copyWith(
-        statusBarBrightness: Brightness.light,
-        statusBarIconBrightness: Brightness.dark,
-      );
-
-  SystemUiOverlayStyle? get darkStatusBar => systemOverlayStyle?.copyWith(
-        statusBarBrightness: Brightness.dark,
-        statusBarIconBrightness: Brightness.light,
-      );
-
-  SystemUiOverlayStyle? get darkSystemOverlay => darkStatusBar?.copyWith(
-        systemNavigationBarColor: primaryVariant,
-        systemNavigationBarIconBrightness: Brightness.light,
-      );
-
-  ThemeData get transparentBarsTheme => theme.copyWith(
-        appBarTheme: appBarTheme.copyWith(
-          systemOverlayStyle: transparentBars,
-        ),
-      );
-
-  ThemeData get lightBackgroundTheme => theme.copyWith(
-        appBarTheme: appBarTheme.copyWith(
-          backgroundColor: background,
-        ),
-      );
 }
 
 extension BrightnessX on Brightness {
