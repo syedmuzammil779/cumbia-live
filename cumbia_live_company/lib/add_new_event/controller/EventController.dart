@@ -1,86 +1,62 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:cumbia_live_company/add_new_event/model/Event.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
+import '../model/Event.dart';
 
-class EventController extends GetxController {
+class EventsController extends GetxController {
+  final events = <Event>[].obs;
+  final isLoading = true.obs;
+  final currentPage = 0.obs;
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Reactive state
-  Rxn<DateTime> selectedDateTime = Rxn<DateTime>();
-  RxString? bannerUrl = RxString('');
-  RxString? streamLink = RxString('');
-  RxList<String> selectedProductIds = <String>[].obs;
+  @override
+  void onInit() {
+    super.onInit();
+    fetchEvents();
+  }
 
-  /// Create a new event in Firestore
-  Future<void> createEvent(BuildContext context) async {
-    if (selectedDateTime.value == null) {
-      _showSnackBar(context, 'Por favor selecciona una fecha y hora');
-      return;
-    }
-
-    final newEvent = Event(
-      id: Uuid().v4(),
-      title: _getFormattedEventTitle(),
-      eventDateTime: selectedDateTime.value!,
-      streamLink: streamLink?.value,
-      bannerUrl: bannerUrl?.value,
-      selectedProductIds: selectedProductIds.toList(),
-    );
-
+  Future<void> fetchEvents() async {
+    isLoading.value = true;
     try {
-      await _firestore.collection('events').doc(newEvent.id).set(newEvent.toMap());
-      _showSnackBar(context, 'Evento creado exitosamente');
-      clearInputs();
-    } catch (e) {
-      debugPrint('Error al crear el evento: $e');
-      _showSnackBar(context, 'Fallo al crear el evento');
+      final snapshot = await _firestore
+          .collection('events')
+          .orderBy('eventDateTime')
+          .get();
+
+      final list = snapshot.docs.map((doc) => Event.fromDoc(doc)).toList();
+      events.assignAll(list);
+    } catch (e, stack) {
+      print('[EventsController] Error fetching events: $e');
+      print(stack);
+    } finally {
+      isLoading.value = false;
     }
   }
 
-  /// Edit event date only
-  Future<void> editEventDate(BuildContext context, String eventId, DateTime newDate) async {
+  Future<void> updateEventDate(Event event, DateTime newDate) async {
     try {
-      await _firestore.collection('events').doc(eventId).update({
-        'eventDateTime': newDate.toIso8601String(),
-      });
-      _showSnackBar(context, 'Fecha del evento actualizada');
+      await _firestore
+          .collection('events')
+          .doc(event.id)
+          .update({'eventDateTime': newDate.toIso8601String()});
+      fetchEvents();
+      Get.snackbar('Success', 'Event updated');
     } catch (e) {
-      debugPrint('Error updating event: $e');
-      _showSnackBar(context, 'Error al actualizar fecha del evento');
+      Get.snackbar('Error', 'Failed to update event: $e');
     }
   }
 
-  /// Delete an event
-  Future<void> deleteEvent(BuildContext context, String eventId) async {
+  Future<void> deleteEvent(Event event) async {
     try {
-      await _firestore.collection('events').doc(eventId).delete();
-      _showSnackBar(context, 'Evento eliminado');
+      await _firestore.collection('events').doc(event.id).delete();
+      events.remove(event);
+      Get.snackbar('Success', 'Evento eliminado');
     } catch (e) {
-      debugPrint('Error deleting event: $e');
-      _showSnackBar(context, 'Fallo al eliminar el evento');
+      Get.snackbar('Error', 'No se pudo eliminar el evento: $e');
     }
   }
 
-  /// Reset controller inputs
-  void clearInputs() {
-    selectedDateTime.value = null;
-    bannerUrl?.value = '';
-    streamLink?.value = '';
-    selectedProductIds.clear();
-  }
-
-  /// Generate title like "julio 28 - lanzamiento"
-  String _getFormattedEventTitle() {
-    final now = DateTime.now();
-    final day = now.day;
-    final month = DateFormat.MMMM('es_ES').format(now);
-    return '$month $day - lanzamiento';
-  }
-
-  void _showSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  void setCurrentPage(int index) {
+    currentPage.value = index;
   }
 }

@@ -1,10 +1,14 @@
+import 'package:cumbia_live_company/Models/Shopify/shopify_product_model.dart';
 import 'package:cumbia_live_company/Models/Stream/zegocloud_token.dart';
+import 'package:cumbia_live_company/controller/ProductsController.dart';
 import 'package:cumbia_live_company/homeScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:zego_express_engine/zego_express_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,18 +16,13 @@ import '../../../Models/WooCommerce/woo_commerce_product_model.dart';
 import 'key_center.dart';
 
 class LivePage extends StatefulWidget {
-  const LivePage({
-    Key? key,
-    required this.isHost,
-    required this.localUserID,
-    required this.localUserName,
-    required this.roomID,
-  }) : super(key: key);
-
   final bool isHost;
   final String localUserID;
   final String localUserName;
   final String roomID;
+  final List<String> selectedProductIds;
+
+  const LivePage({Key? key, required this.isHost, required this.localUserID, required this.localUserName, required this.roomID, required this.selectedProductIds,}) : super(key: key);
 
   @override
   State<LivePage> createState() => _LivePageState();
@@ -40,28 +39,41 @@ class _LivePageState extends State<LivePage> {
   int num = 1;
 
   int step = 0; // 0 = cart, 1 = form, 2 = payment
-  List<WooCommerceProductModel> products = [];
+  // List<WooCommerceProductModel> products = [];
 
-  Future<void> fetchProducts() async {
-    final snapshot = await FirebaseFirestore.instance.collection('products').get();
 
-    setState(() {
-      products = snapshot.docs
-          .map((doc) => WooCommerceProductModel.fromMap(doc.data()))
-          .toList();
-    });
-  }
-
-  // ✅ which card is expanded/selected
-  int? _selectedIndex;
-  final TextEditingController _chatController = TextEditingController();
+  List<ShopifyProductModel> selectedProducts = [];
+  bool isLoadingProducts = true;
 
   @override
   void initState() {
+    super.initState();
     startListenEvent();
     loginRoom();
-    super.initState();
+    fetchProducts();
   }
+
+  Future<void> fetchProducts() async {
+    try {
+      final allProducts = Get.find<ProductsController>().allProducts.value.shopProducts ?? [];
+
+      final filtered = allProducts
+          .where((p) => widget.selectedProductIds.contains(p.id))
+          .toList();
+
+      setState(() {
+        selectedProducts = filtered;
+        isLoadingProducts = false;
+      });
+    } catch (e) {
+      print("Error fetching products: $e");
+      setState(() => isLoadingProducts = false);
+    }
+  }
+
+
+  int? _selectedIndex;
+  final TextEditingController _chatController = TextEditingController();
 
   bool showAllProducts = false;
 
@@ -806,7 +818,7 @@ class _LivePageState extends State<LivePage> {
                                             )
 
                                           ],
-                                        
+
                                         ),
                                       ),
                                     ),
@@ -873,9 +885,9 @@ class _LivePageState extends State<LivePage> {
                             Expanded(
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: showAllProducts ? products.length : 1,
+                                itemCount: showAllProducts ? selectedProducts.length : 0,
                                 itemBuilder: (context, index) {
-                                  final product = products[index]; // model now ✅
+                                  final product = selectedProducts[index]; // model now ✅
                                   final bool isSelected = _selectedIndex == index;
 
                                   return GestureDetector(
@@ -939,7 +951,7 @@ class _LivePageState extends State<LivePage> {
                                                       overflow: TextOverflow.ellipsis,
                                                     ),
                                                     Text(
-                                                      product.description ?? "No Description",
+                                                      product.status ?? "No Description",
                                                       style: TextStyle(
                                                         fontSize: 16.sp,
                                                         color: Colors.grey,
@@ -992,14 +1004,12 @@ class _LivePageState extends State<LivePage> {
                                               ),
                                             ],
                                           ),
-                                          // ✅ Rest of your expanded view logic here (colors, sizes, add to cart button)…
                                         ],
                                       ),
                                     ),
                                   );
                                 },
                               ),
-
                             ),
 
                             // Arrow button to expand/collapse list of cards (kept)
@@ -1008,7 +1018,7 @@ class _LivePageState extends State<LivePage> {
                               child: Container(
                                 height: 40.h,
                                 width: 40.w,
-                                decoration: 
+                                decoration:
                                 BoxDecoration(
                                   color: const Color(0xFF001D2B).withOpacity(0.6),
                                   borderRadius: BorderRadius.circular(6.r)
@@ -1157,7 +1167,7 @@ class _LivePageState extends State<LivePage> {
                             icon: const Icon(Icons.send, size: 28),
                             onPressed: (){
                               sendMessage();
-                              print(products);
+                              // print(products);
                             },
                           ),
                         ),

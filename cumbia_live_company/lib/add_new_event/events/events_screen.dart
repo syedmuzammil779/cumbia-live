@@ -692,6 +692,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                                           GestureDetector(
                                                             onTap: () {
                                                               final streamLink = events[index].streamLink??"";
+                                                              final selectedProductIds = events[index].selectedProductIds??[];
                                                               final uri = Uri.parse(streamLink);
                                                               final roomId = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : '';
                                                               Navigator.push(
@@ -699,6 +700,7 @@ class _EventsScreenState extends State<EventsScreen> {
                                                                 MaterialPageRoute(
                                                                   builder: (context) => LivePage(
                                                                     isHost: true,
+                                                                    selectedProductIds: selectedProductIds,
                                                                     localUserID: "localUserID",
                                                                     localUserName: "localUserName",
                                                                     roomID: roomId,

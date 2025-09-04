@@ -109,6 +109,7 @@ class MyApp extends StatelessWidget {
                       localUserID: "localUserID",
                       localUserName: "localUserName",
                       roomID: videoId,
+                      selectedProductIds: [],
                     ),
                   );
                 } else if (path != null && path.startsWith('publicvideo/')) {

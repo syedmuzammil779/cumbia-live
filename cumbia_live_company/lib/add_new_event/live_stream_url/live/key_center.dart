@@ -1,8 +1,12 @@
 // Get your AppID, AppSign, and serverSecret from ZEGOCLOUD Console
 // [My Projects -> AppID] : https://console.zegocloud.com/project
-const appID = 1089943119;
-const appSign = "134d9896b0c94e3b147f311cb3df217ec821ec8c79ac389526606789cab040cd";
-const serverSecret = "7a85d6e41f72954c5f4d64b7acf62ec4";
+// const appID = 1089943119;
+// const appSign = "134d9896b0c94e3b147f311cb3df217ec821ec8c79ac389526606789cab040cd";
+// const serverSecret = "7a85d6e41f72954c5f4d64b7acf62ec4";
+
+const appID = 291030307;
+const appSign = "88064fa7a6ff309d2c685e74408215cbdb3f7589fb013d5753c3e8f6a2178946";
+const serverSecret = "874ad77460187fbbcfeb50ab5a110c7b";
 
 /// The serverSecret is only required when you need to use this demo to build a Flutter web platform.
 /// The web platform requires token authentication due to security issues. To enable you to quickly experience it,
