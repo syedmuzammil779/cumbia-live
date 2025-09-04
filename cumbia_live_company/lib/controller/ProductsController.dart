@@ -67,7 +67,6 @@ class ProductsController extends GetxController {
     getData();
   }
 
-  /// Fetch data for current user
   Future<void> getData() async {
     final User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
@@ -108,7 +107,6 @@ class ProductsController extends GetxController {
     }
   }
 
-  /// Validate store and load products
   Future<void> validateStore() async {
     if (companyInfo.value.storePlatform == 'WooCommerce') {
       await getWooCommerceProducts();
@@ -117,7 +115,6 @@ class ProductsController extends GetxController {
     }
   }
 
-  /// WooCommerce Products
   Future<void> getWooCommerceProducts() async {
     isLoading.value = true;
     final url =
@@ -155,45 +152,63 @@ class ProductsController extends GetxController {
     }
   }
 
-  /// Shopify Products
   Future<void> getShopifyProducts() async {
-    isLoading.value = true;
-    final url = "${companyInfo.value.webSite}/admin/api/2023-01/products.json";
-    final token = companyInfo.value.accessToken ?? "";
+    // dialogoCarga('Actualizando información...');
+
+    String url = "${companyInfo.value.webSite}/admin/api/2023-01/products.json";
+    String token = companyInfo.value.accessToken ?? "";
 
     try {
-      final Uri apiUrl =
-      Uri.parse("https://waseem-proxy-api-production.up.railway.app/fetch-store-data");
+      final Uri apiUrl = Uri.parse(
+        "https://waseem-proxy-api-production.up.railway.app/fetch-store-data",
+      );
+
+      print("talha----Calling proxy: $apiUrl");
 
       final response = await http.post(
         apiUrl,
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"url": url, "accessToken": token}),
+        body: jsonEncode({
+          "url": url,
+          "accessToken": token,
+        }),
       );
 
-      if (response.statusCode == 200 && response.body != 'error') {
-        final data = jsonDecode(response.body);
-        final List shopProducts = data['products'] ?? [];
+      print("talha----Response: ${response.body}");
 
-        allProducts.update((val) {
-          val?.ecommercePlatform = 'Shopify';
-          val?.shopProducts ??= [];
+      if (response.statusCode == 200 && response.body != 'error') {
+        var data = jsonDecode(response.body);
+        List shopProducts = data['products'] ?? [];
+
+        if (shopProducts.isNotEmpty) {
+          // Ensure non-null list globally
+          allProducts.value.shopProducts ??= [];
+
           for (var productData in shopProducts) {
-            final product = ShopifyProductModel.fromJson(productData);
-            final index =
-                val?.shopProducts?.indexWhere((e) => e.id == product.id) ?? -1;
+            var product = ShopifyProductModel.fromJson(productData);
+
+            final index = allProducts.value.shopProducts?.indexWhere((element) => element.id == product.id) ?? -1;
             if (index >= 0) {
-              val?.shopProducts?[index] = product;
+              allProducts.value.shopProducts![index] = product; // Update existing
             } else {
-              val?.shopProducts?.add(product);
+              allProducts.value.shopProducts?.add(product);     // Add new
             }
           }
-        });
+
+          // modalState(() {
+          //   allProducts.value.ecommercePlatform = 'Shopify';
+          //   // allProducts.shopProducts = [];
+          // });
+        } else {
+          print("talha----No products found in Shopify response");
+        }
+      } else {
+        print("talha----Error: ${response.statusCode}");
       }
     } catch (e) {
-      log("Shopify fetch error: $e");
+      print("talha----Error fetching Shopify products: $e");
     } finally {
-      isLoading.value = false;
+      // Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
 }

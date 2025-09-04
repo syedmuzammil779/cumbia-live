@@ -4,9 +4,12 @@ import 'package:cumbia_live_company/add_new_event/model/Event.dart';
 import 'package:cumbia_live_company/add_new_event/newEvent.dart';
 import 'package:cumbia_live_company/add_new_event/set_date_time_for_event/set_date_time_for_event_screen.dart';
 import 'package:cumbia_live_company/common/utils.dart';
+import 'package:cumbia_live_company/controller/ProductsController.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class EventsScreen extends StatefulWidget {
@@ -17,6 +20,7 @@ class EventsScreen extends StatefulWidget {
 }
 
 class _EventsScreenState extends State<EventsScreen> {
+  ProductsController productsController = Get.put(ProductsController());
   final PageController _pageController = PageController();
   int currentPage = 0;
   List<Event> events = [];
@@ -31,6 +35,8 @@ class _EventsScreenState extends State<EventsScreen> {
   @override
   void initState() {
     super.initState();
+    productsController.getData();
+
     Future.delayed(Duration.zero, () async {
       await fetchEvents();
     });
