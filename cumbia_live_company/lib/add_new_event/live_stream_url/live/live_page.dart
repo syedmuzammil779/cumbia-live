@@ -105,7 +105,9 @@ class _LivePageState extends State<LivePage> {
               flex: 6,
               child: Stack(
                 children: [
-                  Container(child: (widget.isHost ? localView : remoteView)) ,
+                  Container(
+                      color: Colors.black.withAlpha(50),
+                      child: (widget.isHost ? localView : remoteView)),
                   Positioned(
                     bottom: 0,
                     right: 0,
@@ -731,175 +733,176 @@ class _LivePageState extends State<LivePage> {
 
                                 // Cart items
                                 Expanded(
-                                  child: Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
-
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                          height: 220.h,
-                                          width: double.infinity,
-                                          color: Colors.lightBlue,
-                                          child: Center(
-                                            child: Text("Add card image here"),
-                                          ),
-                                        ),
-                                        SizedBox(height: 10.h,),
-
-                                        Container(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text("Numero de tajeta", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
-                                              TextFormField(
-                                                keyboardType: TextInputType.text,
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
-                                                  border:
-                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
-                                                  focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
-                                                  enabledBorder:
-                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
-                                                  hintText: 'Numero de tajeta',
-                                                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
-                                                ),
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please fill it';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 10.h,),
-
-                                        Container(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text("Nombre del dueno", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
-                                              TextFormField(
-                                                keyboardType: TextInputType.text,
-                                                decoration: InputDecoration(
-                                                  fillColor: Colors.white,
-                                                  filled: true,
-                                                  contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
-                                                  border:
-                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
-                                                  focusedBorder: OutlineInputBorder(
-                                                      borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
-                                                  enabledBorder:
-                                                  OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
-                                                  hintText: 'Escribe aquí la fecha de vencimiento',
-                                                  hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
-                                                ),
-                                                validator: (value) {
-                                                  if (value == null || value.isEmpty) {
-                                                    return 'Please fill it';
-                                                  }
-                                                  return null;
-                                                },
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        SizedBox(height: 10.h,),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              flex: 1,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-
-                                                children: [
-                                                  Text("Fecha de vencimiento", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
-
-
-                                                  TextFormField(
-                                                    keyboardType: TextInputType.number,
-                                                    inputFormatters: [
-                                                      FilteringTextInputFormatter.digitsOnly,
-                                                      LengthLimitingTextInputFormatter(4),
-                                                      ExpiryDateTextFormatter(),
-                                                    ],
-                                                    decoration: InputDecoration(
-                                                      fillColor: Colors.white,
-                                                      filled: true,
-                                                      contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
-                                                      border: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(8.sp),
-                                                        borderSide: const BorderSide(color: Colors.grey),
-                                                      ),
-                                                      focusedBorder: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(8.sp),
-                                                        borderSide: const BorderSide(color: Colors.lightBlue),
-                                                      ),
-                                                      enabledBorder: OutlineInputBorder(
-                                                        borderRadius: BorderRadius.circular(8.sp),
-                                                        borderSide: const BorderSide(color: Colors.grey),
-                                                      ),
-                                                      hintText: "Escribe la fecha",
-                                                      hintStyle: TextStyle(
-                                                        color: Colors.grey,
-                                                        fontSize: 14.sp,
-                                                        fontFamily: 'Tajawal',
-                                                      ),
-                                                    ),
-                                                  ),
-
-                                                ],
-                                              ),
+                                  child: SingleChildScrollView(
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.w),
+                                      child: Column(
+                                        children: [
+                                          Container(
+                                            height: 220.h,
+                                            width: double.infinity,
+                                            color: Colors.lightBlue,
+                                            child: Center(
+                                              child: Text("Add card image here"),
                                             ),
-                                            SizedBox(width: 30.w,),
-                                            Expanded(
-                                              flex: 1,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-
-                                                children: [
-                                                  Text("CCV", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
-
-                                                  TextFormField(
-                                                    keyboardType: TextInputType.number,
-                                                    decoration: InputDecoration(
-                                                      fillColor: Colors.white,
-                                                      filled: true,
-                                                      contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h),
-                                                      border: OutlineInputBorder(
+                                          ),
+                                          SizedBox(height: 10.h,),
+                                    
+                                          Container(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text("Numero de tajeta", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                TextFormField(
+                                                  keyboardType: TextInputType.text,
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
+                                                    border:
+                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                    focusedBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                    enabledBorder:
+                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                    hintText: 'Numero de tajeta',
+                                                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                  ),
+                                                  validator: (value) {
+                                                    if (value == null || value.isEmpty) {
+                                                      return 'Please fill it';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(height: 10.h,),
+                                    
+                                          Container(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text("Nombre del dueno", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                                TextFormField(
+                                                  keyboardType: TextInputType.text,
+                                                  decoration: InputDecoration(
+                                                    fillColor: Colors.white,
+                                                    filled: true,
+                                                    contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h), // height control
+                                                    border:
+                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                    focusedBorder: OutlineInputBorder(
+                                                        borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                    enabledBorder:
+                                                    OutlineInputBorder(borderRadius: BorderRadius.circular(8.sp), borderSide: const BorderSide(color: Colors.grey)),
+                                                    hintText: 'Escribe aquí la fecha de vencimiento',
+                                                    hintStyle: TextStyle(color: Colors.grey, fontSize: 14.sp, fontFamily: 'Tajawal'),
+                                                  ),
+                                                  validator: (value) {
+                                                    if (value == null || value.isEmpty) {
+                                                      return 'Please fill it';
+                                                    }
+                                                    return null;
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(height: 10.h,),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                flex: 1,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                    
+                                                  children: [
+                                                    Text("Fecha de vencimiento", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                    
+                                    
+                                                    TextFormField(
+                                                      keyboardType: TextInputType.number,
+                                                      inputFormatters: [
+                                                        FilteringTextInputFormatter.digitsOnly,
+                                                        LengthLimitingTextInputFormatter(4),
+                                                        ExpiryDateTextFormatter(),
+                                                      ],
+                                                      decoration: InputDecoration(
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 16.h),
+                                                        border: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(8.sp),
-                                                          borderSide: const BorderSide(color: Colors.grey)),
-                                                      focusedBorder: OutlineInputBorder(
+                                                          borderSide: const BorderSide(color: Colors.grey),
+                                                        ),
+                                                        focusedBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(8.sp),
-                                                          borderSide: const BorderSide(color: Colors.lightBlue)),
-                                                      enabledBorder: OutlineInputBorder(
+                                                          borderSide: const BorderSide(color: Colors.lightBlue),
+                                                        ),
+                                                        enabledBorder: OutlineInputBorder(
                                                           borderRadius: BorderRadius.circular(8.sp),
-                                                          borderSide: const BorderSide(color: Colors.grey)),
-                                                      hintText: 'Escribe el código',
-                                                      hintStyle: TextStyle(
+                                                          borderSide: const BorderSide(color: Colors.grey),
+                                                        ),
+                                                        hintText: "Escribe la fecha",
+                                                        hintStyle: TextStyle(
                                                           color: Colors.grey,
                                                           fontSize: 14.sp,
-                                                          fontFamily: 'Tajawal'),
+                                                          fontFamily: 'Tajawal',
+                                                        ),
+                                                      ),
                                                     ),
-                                                    validator: (value) {
-                                                      if (value == null || value.isEmpty) {
-                                                        return 'Required';
-                                                      }
-                                                      return null;
-                                                    },
-                                                  ),
-                                                ],
+                                    
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
-                                        )
-
-                                      ],
-
+                                              SizedBox(width: 30.w,),
+                                              Expanded(
+                                                flex: 1,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                    
+                                                  children: [
+                                                    Text("CCV", style: TextStyle(fontWeight: FontWeight.w500, color: Colors.grey.shade300)),
+                                    
+                                                    TextFormField(
+                                                      keyboardType: TextInputType.number,
+                                                      decoration: InputDecoration(
+                                                        fillColor: Colors.white,
+                                                        filled: true,
+                                                        contentPadding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 18.h),
+                                                        border: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(8.sp),
+                                                            borderSide: const BorderSide(color: Colors.grey)),
+                                                        focusedBorder: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(8.sp),
+                                                            borderSide: const BorderSide(color: Colors.lightBlue)),
+                                                        enabledBorder: OutlineInputBorder(
+                                                            borderRadius: BorderRadius.circular(8.sp),
+                                                            borderSide: const BorderSide(color: Colors.grey)),
+                                                        hintText: 'Escribe el código',
+                                                        hintStyle: TextStyle(
+                                                            color: Colors.grey,
+                                                            fontSize: 14.sp,
+                                                            fontFamily: 'Tajawal'),
+                                                      ),
+                                                      validator: (value) {
+                                                        if (value == null || value.isEmpty) {
+                                                          return 'Required';
+                                                        }
+                                                        return null;
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                    
+                                        ],
+                                    
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1161,8 +1164,9 @@ class _LivePageState extends State<LivePage> {
                               color: const Color(0xFF15BECE),
                             ),
                             child: IconButton(
-                              icon: const Icon(Icons.send, size: 28),
-                              onPressed: (){
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.send, size: 25),
+                              onPressed: () {
                                 sendMessage();
                               },
                             ),

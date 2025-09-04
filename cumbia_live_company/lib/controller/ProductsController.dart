@@ -12,7 +12,6 @@ import 'package:http/http.dart' as http;
 class ProductsController extends GetxController {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
-  /// Reactive states
   var isLoading = false.obs;
   var allProducts = GeneralProductData(
     ecommercePlatform: '',
@@ -57,9 +56,6 @@ class ProductsController extends GetxController {
     consumerSecret: '',
     accessToken: '',
   ).obs;
-
-  final CreateLiveStreamUrlController createLiveStreamUrlController =
-  Get.put(CreateLiveStreamUrlController());
 
   @override
   void onInit() {
@@ -153,7 +149,6 @@ class ProductsController extends GetxController {
   }
 
   Future<void> getShopifyProducts() async {
-    // dialogoCarga('Actualizando información...');
 
     String url = "${companyInfo.value.webSite}/admin/api/2023-01/products.json";
     String token = companyInfo.value.accessToken ?? "";
@@ -181,7 +176,6 @@ class ProductsController extends GetxController {
         List shopProducts = data['products'] ?? [];
 
         if (shopProducts.isNotEmpty) {
-          // Ensure non-null list globally
           allProducts.value.shopProducts ??= [];
 
           for (var productData in shopProducts) {
@@ -189,16 +183,14 @@ class ProductsController extends GetxController {
 
             final index = allProducts.value.shopProducts?.indexWhere((element) => element.id == product.id) ?? -1;
             if (index >= 0) {
-              allProducts.value.shopProducts![index] = product; // Update existing
+              allProducts.value.shopProducts![index] = product;
             } else {
-              allProducts.value.shopProducts?.add(product);     // Add new
+              allProducts.value.shopProducts?.add(product);
             }
           }
 
-          // modalState(() {
-          //   allProducts.value.ecommercePlatform = 'Shopify';
-          //   // allProducts.shopProducts = [];
-          // });
+          allProducts.value.ecommercePlatform = 'Shopify';
+          update();
         } else {
           print("talha----No products found in Shopify response");
         }
@@ -208,7 +200,6 @@ class ProductsController extends GetxController {
     } catch (e) {
       print("talha----Error fetching Shopify products: $e");
     } finally {
-      // Navigator.of(context, rootNavigator: true).pop('dialog');
     }
   }
 }
